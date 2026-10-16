@@ -1,32 +1,85 @@
 #pragma once
 #include <map>
 #include <functional>
+#include "../../../Utility/AsoUtility.h"
 #include "../CharactorBase.h"
 
 class Player : public CharactorBase
 {
 public:
+
+	// スピード
 	static constexpr float SPEED_MOVE = 5.0f;
 	static constexpr float SPEED_RUN = 10.0f;
+
+	// 回転完了までの時間
 	static constexpr float TIME_ROT = 1.0f;
+
+	// ジャンプ力
 	static constexpr float POW_JUMP = 35.0f;
+
+	// ジャンプ受付時間
 	static constexpr float TIME_JUMP_IN = 0.5f;
 
-	enum class STATE { NONE, PLAY, WARP_RESERVE, WARP_MOVE, DEAD, VICTORY, END };
-	enum class ANIM_TYPE { IDLE, RUN, FAST_RUN, JUMP, WARP_PAUSE, FLY, FALLING, VICTORY };
+	// モデルの基本設定
+	static constexpr VECTOR PLAYER_POS = { 0.0f, -30.0f, 0.0f };	// プレイヤー初期座標
+	static constexpr float PLAYER_ROT_Y = 180.0f;	// プレイヤー初期軸Y
 
+	// 当たり判定（カプセル）のサイズ設定
+	static constexpr VECTOR CAPSULE_TOP = { 0.0f, 110.0f, 0.0f };	// カプセル上端座標
+	static constexpr VECTOR CAPSULE_BOTTOM = { 0.0f, 30.0f, 0.0f };	// カプセル下端座標
+	static constexpr float CAPSULE_RADIUS = 20.0f;	// カプセルの半径
+
+	// ジャンプ＆着地アニメーションのフレーム指定
+	static constexpr float ANIM_JUMP_START = 13.0f;       // ジャンプ開始フレーム
+	static constexpr float ANIM_JUMP_LOOP_START = 23.0f;  // 滞空ループの開始フレーム
+	static constexpr float ANIM_JUMP_LOOP_END = 25.0f;    // 滞空ループの終了フレーム
+	static constexpr float ANIM_JUMP_BLEND = 5.0f;        // 滞空ループのブレンド時間
+	static constexpr float ANIM_LANDING_START = 29.0f;    // 着地モーション開始フレーム
+	static constexpr float ANIM_LANDING_END = 45.0f;      // 着地モーション終了フレーム
+
+	// 状態
+	enum class STATE 
+	{ 
+		NONE, 
+		PLAY, 
+		WARP_RESERVE, 
+		WARP_MOVE, 
+		DEAD, 
+		VICTORY, 
+		END 
+	};
+
+	// アニメーション種別
+	enum class ANIM_TYPE 
+	{ 
+		IDLE, 
+		RUN, 
+		FAST_RUN, 
+		JUMP, 
+		WARP_PAUSE, 
+		FLY, 
+		FALLING, 
+		VICTORY 
+	};
+
+	// コンストラクタ
 	Player(void);
+	
+	// デストラクタ
 	~Player(void);
 
 	void Update(void) override;
 	void Draw(void) override;
 
 protected:
+
 	// CharactorBaseから委譲された固有初期化と着地処理
 	void InitDetail(void) override;
 	void OnLanding(void) override;
 
 private:
+
 	// 状態管理
 	STATE state_;
 	std::map<STATE, std::function<void(void)>> stateChanges_;

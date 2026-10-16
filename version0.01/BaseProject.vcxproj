@@ -19,8 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Object\Charactor\Enemy\EnemyBase.cpp" />
     <ClCompile Include="Src\Object\Charactor\CharactorBase.cpp" />
-    <ClCompile Include="Src\Object\Centaur.cpp" />
+    <ClCompile Include="Src\Object\Charactor\Enemy\Centaur.cpp" />
     <ClCompile Include="Src\Object\Skull.cpp" />
     <ClCompile Include="Src\Object\Destroyer.cpp" />
     <ClCompile Include="Src\Object\ActorBase.cpp" />
@@ -51,8 +52,9 @@
     <ClCompile Include="Src\Utility\AsoUtility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Object\Charactor\Enemy\EnemyBase.h" />
     <ClInclude Include="Src\Object\Charactor\CharactorBase.h" />
-    <ClInclude Include="Src\Object\Centaur.h" />
+    <ClInclude Include="Src\Object\Charactor\Enemy\Centaur.h" />
     <ClInclude Include="Src\Object\Skull.h" />
     <ClInclude Include="Src\Object\Destroyer.h" />
     <ClInclude Include="Src\Object\ActorBase.h" />

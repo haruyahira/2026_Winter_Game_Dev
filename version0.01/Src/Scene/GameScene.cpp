@@ -6,10 +6,10 @@
 #include "../Object/Common/Capsule.h"
 #include "../Object/Common/Collider.h"
 #include "../Object/Charactor/Player/Player.h"
+#include "../Object/Charactor/Enemy/Centaur.h"
 #include "../Object/SkyDome.h"
 #include "../Object/Stage.h"
 #include "../Object/Destroyer.h"
-#include "../Object/Centaur.h"
 #include "GameScene.h"
 
 GameScene::GameScene(void)
@@ -31,7 +31,6 @@ void GameScene::Init(void)
 	player_ = std::make_unique<Player>();
 	player_->Init();
 	
-
 	// ”j‰óŽÒ
 	destroyer_ = std::make_unique<Destroyer>();
 	destroyer_->Init();

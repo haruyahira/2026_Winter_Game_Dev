@@ -8,8 +8,7 @@
 #include "../Common/AnimationController.h"
 #include "../Common/Collider.h"
 #include "../Common/Capsule.h"
-
-#include "../Planet.h" // 重力値用
+#include "../Planet.h" 
 
 CharactorBase::CharactorBase(void)
 {
@@ -30,6 +29,10 @@ CharactorBase::CharactorBase(void)
 
 	imgShadow_ = -1;
 	imgToonMap_ = -1;
+
+	// ★追加: デフォルトのシェーダー設定
+	vsName_ = "ToonModelVS6.cso";
+	psName_ = "ToonModelPS6.cso";
 }
 
 CharactorBase::~CharactorBase(void)
@@ -39,6 +42,7 @@ CharactorBase::~CharactorBase(void)
 void CharactorBase::Init(void)
 {
 	// 1. 子クラス(PlayerやEnemy)固有の初期化（モデル読み込みやカプセル設定）
+	// ★ここで Centaur の場合は vsName_, psName_ が書き換えられる
 	InitDetail();
 
 	// 2. キャラクター共通の初期化処理（マテリアルやレンダラーの生成）
@@ -47,7 +51,8 @@ void CharactorBase::Init(void)
 	imgShadow_ = resMng.Load(ResourceManager::SRC::PLAYER_SHADOW).handleId_;
 	imgToonMap_ = resMng.Load(ResourceManager::SRC::TEX_TOON).handleId_;
 
-	material_ = std::make_unique<ModelMaterial>("ToonModelVS6.cso", 2, "ToonModelPS6.cso", 3);
+	// ★修正: 変数を使用してマテリアルを生成
+	material_ = std::make_unique<ModelMaterial>(vsName_, 2, psName_, 3);
 	material_->SetTextureBuf(3, imgToonMap_);
 
 	material_->AddConstBufPS({ 1.0f, 1.0f, 1.0f, 1.0f });

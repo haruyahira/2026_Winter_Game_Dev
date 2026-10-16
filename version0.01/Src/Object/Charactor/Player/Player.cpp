@@ -26,7 +26,9 @@ Player::Player(void)
 	stateChanges_.emplace(STATE::PLAY, std::bind(&Player::ChangeStatePlay, this));
 }
 
-Player::~Player(void) {}
+Player::~Player(void) 
+{
+}
 
 void Player::InitDetail(void)
 {
@@ -35,9 +37,9 @@ void Player::InitDetail(void)
 	// モデルの基本設定
 	transform_.SetModel(resMng_.LoadModelDuplicate(ResourceManager::SRC::PLAYER));
 	transform_.scl = AsoUtility::VECTOR_ONE;
-	transform_.pos = { 0.0f, -30.0f, 0.0f };
+	transform_.pos = PLAYER_POS;
 	transform_.quaRot = Quaternion();
-	transform_.quaRotLocal = Quaternion::Euler({ 0.0f, AsoUtility::Deg2RadF(180.0f), 0.0f });
+	transform_.quaRotLocal = Quaternion::Euler({ 0.0f, AsoUtility::Deg2RadF(PLAYER_ROT_Y), 0.0f });
 	transform_.Update();
 
 	// アニメーションの設定
@@ -45,9 +47,9 @@ void Player::InitDetail(void)
 
 	// カプセルコライダの設定
 	capsule_ = std::make_unique<Capsule>(transform_);
-	capsule_->SetLocalPosTop({ 0.0f, 110.0f, 0.0f });
-	capsule_->SetLocalPosDown({ 0.0f, 30.0f, 0.0f });
-	capsule_->SetRadius(20.0f);
+	capsule_->SetLocalPosTop(CAPSULE_TOP);
+	capsule_->SetLocalPosDown(CAPSULE_BOTTOM);
+	capsule_->SetRadius(CAPSULE_RADIUS);
 
 	ChangeState(STATE::PLAY);
 }
@@ -91,9 +93,19 @@ void Player::ChangeState(STATE state)
 	stateChanges_[state_]();
 }
 
-void Player::ChangeStateNone(void) { stateUpdate_ = std::bind(&Player::UpdateNone, this); }
-void Player::ChangeStatePlay(void) { stateUpdate_ = std::bind(&Player::UpdatePlay, this); }
-void Player::UpdateNone(void) {}
+void Player::ChangeStateNone(void) 
+{ 
+	stateUpdate_ = std::bind(&Player::UpdateNone, this); 
+}
+
+void Player::ChangeStatePlay(void) 
+{
+	stateUpdate_ = std::bind(&Player::UpdatePlay, this); 
+}
+
+void Player::UpdateNone(void) 
+{
+}
 
 void Player::UpdatePlay(void)
 {
@@ -146,8 +158,8 @@ void Player::ProcessJump(void)
 
 	if (isHit && (isJump_ || IsEndLanding())) {
 		if (!isJump_) {
-			animationController_->Play((int)ANIM_TYPE::JUMP, true, 13.0f, 25.0f);
-			animationController_->SetEndLoop(23.0f, 25.0f, 5.0f);
+			animationController_->Play((int)ANIM_TYPE::JUMP, true, ANIM_JUMP_START, ANIM_JUMP_LOOP_END);
+			animationController_->SetEndLoop(ANIM_JUMP_LOOP_START, ANIM_JUMP_LOOP_END, ANIM_JUMP_BLEND);
 		}
 		isJump_ = true;
 		stepJump_ += scnMng_.GetDeltaTime();
@@ -184,7 +196,7 @@ void Player::OnLanding(void)
 {
 	stepJump_ = 0.0f;
 	if (isJump_) {
-		animationController_->Play((int)ANIM_TYPE::JUMP, false, 29.0f, 45.0f, false, true);
+		animationController_->Play((int)ANIM_TYPE::JUMP, false, ANIM_LANDING_START, ANIM_LANDING_END, false, true);
 	}
 	isJump_ = false;
 }

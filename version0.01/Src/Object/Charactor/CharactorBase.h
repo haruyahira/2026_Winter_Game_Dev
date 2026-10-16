@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <string> // 追加
 #include <DxLib.h>
 #include "../ActorBase.h"
 
@@ -27,8 +28,13 @@ public:
 	const Capsule& GetCapsule(void) const;
 
 protected:
+
 	// 子クラス固有の初期化処理（モデル・カプセル・アニメーションの設定など）
 	virtual void InitDetail(void) = 0;
+
+	// ★追加: シェーダーファイル名
+	std::string vsName_;
+	std::string psName_;
 
 	// アニメーションと描画
 	std::unique_ptr<AnimationController> animationController_;
