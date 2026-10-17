@@ -1,8 +1,9 @@
 #pragma once
 #include <memory>
 #include <vector>
-#include <string> // 追加
+#include <string> 
 #include <DxLib.h>
+#include "../../Manager/ResourceManager.h"
 #include "../ActorBase.h"
 
 class AnimationController;
@@ -32,7 +33,12 @@ protected:
 	// 子クラス固有の初期化処理（モデル・カプセル・アニメーションの設定など）
 	virtual void InitDetail(void) = 0;
 
-	// ★追加: シェーダーファイル名
+	void SetShader(const std::string& vsName, const std::string& psName);
+	void LoadAndSetupModel(ResourceManager::SRC srcId, float scl, VECTOR pos, VECTOR rot);
+	void SetupCapsule(VECTOR top, VECTOR bottom, float radius);
+	void HideModelFrame(int frameIndex);
+
+	// シェーダーファイル名
 	std::string vsName_;
 	std::string psName_;
 

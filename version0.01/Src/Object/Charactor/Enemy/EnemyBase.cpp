@@ -38,17 +38,16 @@ void EnemyBase::Update(void)
 
 void EnemyBase::Draw(void)
 {
-	// •`‰æ‚ÍPlayer‚Æ‚Ù‚Ú“¯‚¶—¬‚ê
 	if (material_ && renderer_)
 	{
 		auto& camera = SceneManager::GetInstance().GetCamera();
-		auto cPos = camera.GetPos();
-		material_->SetConstBufVS(0, { cPos.x, cPos.y, cPos.z, 0.0f });
+		auto camaraPos = camera.GetPos();
+		material_->SetConstBufVS(0, { camaraPos.x, camaraPos.y, camaraPos.z, 0.0f });
 
 		renderer_->Draw();
 	}
 
-	// ŠÛ‰e‚Ì•`‰æ ¦CharactorBase‚Ì‹@”\
+	// ŠÛ‰e‚Ì•`‰æ
 	DrawShadow();
 }
 

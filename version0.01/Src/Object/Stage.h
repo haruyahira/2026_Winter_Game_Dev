@@ -7,7 +7,7 @@ class Planet;
 class Skull;
 class Player;
 class Destroyer;
-class Centaur;
+class BossEnemy;
 
 class Stage
 {
@@ -24,7 +24,7 @@ public:
 	};
 
 	// コンストラクタ
-	Stage(Player& player, Destroyer& destroyer, Centaur& centaur);
+	Stage(Player& player, Destroyer& destroyer, BossEnemy& centaur);
 
 	// デストラクタ
 	~Stage(void);
@@ -46,7 +46,7 @@ private:
 
 	Player& player_;
 	Destroyer& destroyer_;
-	Centaur& centaur_;
+	BossEnemy& centaur_;
 
 	// ステージアクティブになっている惑星の情報
 	NAME activeName_;

@@ -1,4 +1,5 @@
-#include "Centaur.h"
+#include "BossEnemy.h"
+
 #include "../../../Manager/ResourceManager.h"
 #include "../../../Manager/SceneManager.h"
 #include "../../../Utility/AsoUtility.h"
@@ -7,101 +8,102 @@
 #include "../../Common/Collider.h"
 #include "../../Planet.h"
 
-Centaur::Centaur(void)
+BossEnemy::BossEnemy(void)
 {
-	cState_ = CENTAUR_STATE::NONE;
+	state_ = STATE::NONE;
 	step_ = 0.0f;
 }
 
-Centaur::~Centaur(void)
+BossEnemy::~BossEnemy(void)
 {
 }
 
-void Centaur::InitDetail(void)
+void BossEnemy::InitDetail(void)
 {
 	vsName_ = "ToonModelVS2.cso";
 	psName_ = "ToonModelPS2.cso";
 
 	auto& resMng = ResourceManager::GetInstance();
 
-	// モデルの基本設定
-	transform_.SetModel(resMng.LoadModelDuplicate(ResourceManager::SRC::CENTAUR));
-	transform_.scl = VScale(AsoUtility::VECTOR_ONE, 1.5f);
-	transform_.pos = { 150.0f, -40.0f, 200.0f };
-	transform_.quaRot = Quaternion();
-	transform_.quaRotLocal = Quaternion::Euler({ 0.0f, AsoUtility::Deg2RadF(300.0f), 0.0f });
-	transform_.Update();
+	// モデル(リソースID, スケール, 座標, ローカル軸回転)
+	LoadAndSetupModel(
+		ResourceManager::SRC::BOSS_ENEMY,
+		INIT_SCALE,
+		INIT_POSITION,
+		INIT_AXIS);
 
 	// 髪と槍を非表示にする
 	MV1SetFrameVisible(transform_.modelId, 3, false);
-	MV1SetFrameVisible(transform_.modelId, 132, false);
+	//MV1SetFrameVisible(transform_.modelId, 132, false);
 
-	// 2. アニメーションの設定
+	// 当たり判定(上端Y, 下端Y, 半径)
+	SetupCapsule(CAPSULE_TOP, CAPSULE_BOTTOM, CAPSULE_RADIUS);
+
+	// アニメーションの準備
+	InitAnimation();
+
+	// 初期状態
+	ChangeState(STATE::MOVE);
+}
+
+void BossEnemy::InitAnimation(void)
+{
+	// アニメーションの設定
 	animationController_ = std::make_unique<AnimationController>(transform_.modelId);
 	animationController_->AddInFBX((int)ANIM_TYPE::IDLE, 30.0f);
 	animationController_->AddInFBX((int)ANIM_TYPE::WALK, 30.0f);
 
-	// 初期アニメーションを再生しないとモデルが表示されない場合があります
 	animationController_->Play((int)ANIM_TYPE::IDLE);
-
-	// 3. カプセルコライダ（当たり判定）のサイズ設定
-	capsule_ = std::make_unique<Capsule>(transform_);
-	capsule_->SetLocalPosTop({ 0.0f, 110.0f, 0.0f });
-	capsule_->SetLocalPosDown({ 0.0f, 30.0f, 0.0f });
-	capsule_->SetRadius(20.0f);
-
-	// 初期状態へ
-	ChangeState(CENTAUR_STATE::MOVE);
 }
 
 // 毎フレーム EnemyBase::Update から呼び出される AI処理
-void Centaur::ProcessAI(void)
+void BossEnemy::ProcessAI(void)
 {
-	switch (cState_)
+	switch (state_)
 	{
-	case CENTAUR_STATE::NONE:
+	case STATE::NONE:
 		break;
-	case CENTAUR_STATE::THINK:
+	case STATE::THINK:
 		UpdateThink();
 		break;
-	case CENTAUR_STATE::IDLE:
+	case STATE::IDLE:
 		UpdateIdle();
 		break;
-	case CENTAUR_STATE::MOVE:
+	case STATE::MOVE:
 		UpdateMove();
 		break;
-	case CENTAUR_STATE::ACTION:
+	case STATE::ACTION:
 		UpdateAction();
 		break;
-	case CENTAUR_STATE::END:
+	case STATE::END:
 		break;
 	default:
 		break;
 	}
 }
 
-void Centaur::ChangeState(CENTAUR_STATE state)
+void BossEnemy::ChangeState(STATE state)
 {
-	cState_ = state;
+	state_ = state;
 	step_ = 0.0f;
 	movePow_ = AsoUtility::VECTOR_ZERO; // 親クラス(CharactorBase)の変数
 
-	switch (cState_)
+	switch (state_)
 	{
-	case CENTAUR_STATE::NONE:
+	case STATE::NONE:
 		break;
-	case CENTAUR_STATE::THINK:
+	case STATE::THINK:
 	{
 		// 2(IDLE) か 3(MOVE) をランダムで選ぶ
-		int tmpState = GetRand(2) + 2;
-		ChangeState((CENTAUR_STATE)tmpState);
+		int tmpState = GetRand(1) + 2;
+		ChangeState((STATE)tmpState);
 	}
-	break;
-	case CENTAUR_STATE::IDLE:
+		break;
+	case STATE::IDLE:
 		animationController_->Play((int)ANIM_TYPE::IDLE);
 		step_ = (float)(2000 + GetRand(3000)) / 1000.0f;
 		break;
-	case CENTAUR_STATE::MOVE:
+	case STATE::MOVE:
 	{
 		animationController_->Play((int)ANIM_TYPE::WALK);
 		step_ = (float)(3000 + GetRand(3000)) / 1000.0f;
@@ -113,30 +115,30 @@ void Centaur::ChangeState(CENTAUR_STATE state)
 		moveDir_.z = ((float)(GetRand(2000)) / 1000.0f) - 1.0f;
 		moveDir_ = VNorm(moveDir_);
 	}
-	break;
-	case CENTAUR_STATE::ACTION:
 		break;
-	case CENTAUR_STATE::END:
+	case STATE::ACTION:
+		break;
+	case STATE::END:
 		break;
 	default:
 		break;
 	}
 }
 
-void Centaur::UpdateThink(void)
+void BossEnemy::UpdateThink(void)
 {
 }
 
-void Centaur::UpdateIdle(void)
+void BossEnemy::UpdateIdle(void)
 {
 	step_ -= SceneManager::GetInstance().GetDeltaTime();
 	if (step_ < 0.0f)
 	{
-		ChangeState(CENTAUR_STATE::THINK);
+		ChangeState(STATE::THINK);
 	}
 }
 
-void Centaur::UpdateMove(void)
+void BossEnemy::UpdateMove(void)
 {
 	// movePow_ に値を入れるだけで、実際の移動と壁との衝突処理は EnemyBase がやってくれる
 	movePow_ = VScale(moveDir_, 2.0f);
@@ -171,16 +173,16 @@ void Centaur::UpdateMove(void)
 	step_ -= SceneManager::GetInstance().GetDeltaTime();
 	if (step_ < 0.0f)
 	{
-		ChangeState(CENTAUR_STATE::THINK);
+		ChangeState(STATE::THINK);
 	}
 }
 
-void Centaur::UpdateAction(void)
+void BossEnemy::UpdateAction(void)
 {
 	step_ -= SceneManager::GetInstance().GetDeltaTime();
 	if (step_ < 0.0f)
 	{
-		ChangeState(CENTAUR_STATE::THINK);
+		ChangeState(STATE::THINK);
 	}
 }
 

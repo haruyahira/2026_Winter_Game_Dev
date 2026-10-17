@@ -6,7 +6,7 @@
 #include "../Object/Common/Capsule.h"
 #include "../Object/Common/Collider.h"
 #include "../Object/Charactor/Player/Player.h"
-#include "../Object/Charactor/Enemy/Centaur.h"
+#include "../Object/Charactor/Enemy/BossEnemy.h"
 #include "../Object/SkyDome.h"
 #include "../Object/Stage.h"
 #include "../Object/Destroyer.h"
@@ -36,7 +36,7 @@ void GameScene::Init(void)
 	destroyer_->Init();
 
 	// 破壊者
-	centaur_ = std::make_unique<Centaur>();
+	centaur_ = std::make_unique<BossEnemy>();
 	centaur_->Init();
 
 	// ステージ

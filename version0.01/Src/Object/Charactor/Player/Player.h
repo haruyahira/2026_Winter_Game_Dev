@@ -22,32 +22,33 @@ public:
 	static constexpr float TIME_JUMP_IN = 0.5f;
 
 	// モデルの基本設定
-	static constexpr VECTOR PLAYER_POS = { 0.0f, -30.0f, 0.0f };	// プレイヤー初期座標
-	static constexpr float PLAYER_ROT_Y = 180.0f;	// プレイヤー初期軸Y
+	static constexpr VECTOR INIT_POSITION = { 0.0f, -30.0f, 0.0f };  // プレイヤー初期座標
+	static constexpr VECTOR INIT_AXIS = { 0.0f, 180.0f, 0.0f };  // プレイヤー初期軸
+	static constexpr float INIT_SCALE = 1.0f;  // プレイヤー初期スケール
 
 	// 当たり判定（カプセル）のサイズ設定
-	static constexpr VECTOR CAPSULE_TOP = { 0.0f, 110.0f, 0.0f };	// カプセル上端座標
-	static constexpr VECTOR CAPSULE_BOTTOM = { 0.0f, 30.0f, 0.0f };	// カプセル下端座標
-	static constexpr float CAPSULE_RADIUS = 20.0f;	// カプセルの半径
+	static constexpr VECTOR CAPSULE_TOP = { 0.0f, 110.0f, 0.0f };  // カプセル上端座標
+	static constexpr VECTOR CAPSULE_BOTTOM = { 0.0f, 30.0f, 0.0f };  // カプセル下端座標
+	static constexpr float CAPSULE_RADIUS = 20.0f;  // カプセルの半径
 
 	// ジャンプ＆着地アニメーションのフレーム指定
-	static constexpr float ANIM_JUMP_START = 13.0f;       // ジャンプ開始フレーム
+	static constexpr float ANIM_JUMP_START = 13.0f;  // ジャンプ開始フレーム
 	static constexpr float ANIM_JUMP_LOOP_START = 23.0f;  // 滞空ループの開始フレーム
-	static constexpr float ANIM_JUMP_LOOP_END = 25.0f;    // 滞空ループの終了フレーム
-	static constexpr float ANIM_JUMP_BLEND = 5.0f;        // 滞空ループのブレンド時間
-	static constexpr float ANIM_LANDING_START = 29.0f;    // 着地モーション開始フレーム
-	static constexpr float ANIM_LANDING_END = 45.0f;      // 着地モーション終了フレーム
+	static constexpr float ANIM_JUMP_LOOP_END = 25.0f;  // 滞空ループの終了フレーム
+	static constexpr float ANIM_JUMP_BLEND = 5.0f;  // 滞空ループのブレンド時間
+	static constexpr float ANIM_LANDING_START = 29.0f;  // 着地モーション開始フレーム
+	static constexpr float ANIM_LANDING_END = 45.0f;  // 着地モーション終了フレーム
 
-	// 状態
+	// プレイヤーの状態
 	enum class STATE 
 	{ 
-		NONE, 
-		PLAY, 
-		WARP_RESERVE, 
-		WARP_MOVE, 
-		DEAD, 
-		VICTORY, 
-		END 
+		NONE,	
+		PLAY,	
+		WARP_RESERVE,  
+		WARP_MOVE,  
+		DEAD,
+		VICTORY,
+		END
 	};
 
 	// アニメーション種別
@@ -93,11 +94,15 @@ private:
 	// ジャンプ受付
 	float stepJump_;
 
+	// 初期化
 	void InitAnimation(void);
 
+	// ステートごとの状態遷移管理
 	void ChangeState(STATE state);
 	void ChangeStateNone(void);
 	void ChangeStatePlay(void);
+
+	// ステートごとの更新処理
 	void UpdateNone(void);
 	void UpdatePlay(void);
 
@@ -107,5 +112,6 @@ private:
 	void SetGoalRotate(double rotRad);
 	void Rotate(void);
 
+	// 判定処理
 	bool IsEndLanding(void);
 };

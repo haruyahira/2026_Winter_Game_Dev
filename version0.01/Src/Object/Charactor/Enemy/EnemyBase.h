@@ -11,10 +11,12 @@ public:
 	// 敵の共通状態
 	enum class STATE
 	{
-		IDLE,   // 待機
-		CHASE,  // 追跡
-		ATTACK, // 攻撃
-		DEAD    // 死亡
+		NONE,
+		THINK,
+		IDLE,
+		MOVE,
+		ACTION,
+		END
 	};
 
 	EnemyBase(void);
@@ -30,7 +32,7 @@ public:
 protected:
 	// 敵専用の変数
 	STATE state_;
-	std::weak_ptr<Player> target_; // プレイヤーの場所を知るための参照
+	std::weak_ptr<Player> target_;	// プレイヤーの場所を知るための参照
 
 	// 敵共通の思考処理（子クラスで上書きできるようにしておく）
 	virtual void ProcessAI(void);

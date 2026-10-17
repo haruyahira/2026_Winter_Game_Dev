@@ -69,7 +69,7 @@ void ResourceManager::Init(void)
 	
 	// ケンタウロス
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Centaur/Centaur.mv1");
-	resourcesMap_.emplace(SRC::CENTAUR, std::move(res));
+	resourcesMap_.emplace(SRC::BOSS_ENEMY, std::move(res));
 
 	// 骸骨オブジェクト
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Skull/Skull.mv1");

@@ -30,7 +30,7 @@ CharactorBase::CharactorBase(void)
 	imgShadow_ = -1;
 	imgToonMap_ = -1;
 
-	// ★追加: デフォルトのシェーダー設定
+	// デフォルトのシェーダー設定
 	vsName_ = "ToonModelVS6.cso";
 	psName_ = "ToonModelPS6.cso";
 }
@@ -41,17 +41,17 @@ CharactorBase::~CharactorBase(void)
 
 void CharactorBase::Init(void)
 {
-	// 1. 子クラス(PlayerやEnemy)固有の初期化（モデル読み込みやカプセル設定）
-	// ★ここで Centaur の場合は vsName_, psName_ が書き換えられる
+	// 子クラス(PlayerやEnemy)固有の初期化（モデル読み込みやカプセル設定）
+	// ここで Centaur の場合は vsName_, psName_ が書き換えられる
 	InitDetail();
 
-	// 2. キャラクター共通の初期化処理（マテリアルやレンダラーの生成）
+	// キャラクター共通の初期化処理（マテリアルやレンダラーの生成）
 	auto& resMng = ResourceManager::GetInstance();
 
 	imgShadow_ = resMng.Load(ResourceManager::SRC::PLAYER_SHADOW).handleId_;
 	imgToonMap_ = resMng.Load(ResourceManager::SRC::TEX_TOON).handleId_;
 
-	// ★修正: 変数を使用してマテリアルを生成
+	// 変数を使用してマテリアルを生成
 	material_ = std::make_unique<ModelMaterial>(vsName_, 2, psName_, 3);
 	material_->SetTextureBuf(3, imgToonMap_);
 
@@ -217,4 +217,33 @@ void CharactorBase::CalcGravityPow(void)
 	{
 		jumpPow_ = gravity;
 	}
+}
+
+void CharactorBase::SetShader(const std::string& vsName, const std::string& psName)
+{
+	vsName_ = vsName;
+	psName_ = psName;
+}
+
+void CharactorBase::LoadAndSetupModel(ResourceManager::SRC srcId, float scl, VECTOR pos, VECTOR rot)
+{
+	transform_.SetModel(ResourceManager::GetInstance().LoadModelDuplicate(srcId));
+	transform_.scl = VScale(AsoUtility::VECTOR_ONE, scl);
+	transform_.pos = pos;
+	transform_.quaRot = Quaternion();
+	transform_.quaRotLocal = Quaternion::Euler({ rot.x, AsoUtility::Deg2RadF(rot.y), rot.z });
+	transform_.Update();
+}
+
+void CharactorBase::SetupCapsule(VECTOR top, VECTOR bottom, float radius)
+{
+	capsule_ = std::make_unique<Capsule>(transform_);
+	capsule_->SetLocalPosTop(top);
+	capsule_->SetLocalPosDown(bottom);
+	capsule_->SetRadius(radius);
+}
+
+void CharactorBase::HideModelFrame(int frameIndex)
+{
+	MV1SetFrameVisible(transform_.modelId, frameIndex, false);
 }

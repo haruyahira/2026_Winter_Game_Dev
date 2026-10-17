@@ -34,41 +34,21 @@ void Player::InitDetail(void)
 {
 	auto& resMng_ = ResourceManager::GetInstance();
 
-	// モデルの基本設定
-	transform_.SetModel(resMng_.LoadModelDuplicate(ResourceManager::SRC::PLAYER));
-	transform_.scl = AsoUtility::VECTOR_ONE;
-	transform_.pos = PLAYER_POS;
-	transform_.quaRot = Quaternion();
-	transform_.quaRotLocal = Quaternion::Euler({ 0.0f, AsoUtility::Deg2RadF(PLAYER_ROT_Y), 0.0f });
-	transform_.Update();
+	// モデル(リソースID, スケール, 座標, ローカル軸回転)
+	LoadAndSetupModel(
+		ResourceManager::SRC::PLAYER,
+		INIT_SCALE, 
+		INIT_POSITION, 
+		INIT_AXIS);
 
-	// アニメーションの設定
+	// 当たり判定(上端Y, 下端Y, 半径)
+	SetupCapsule(CAPSULE_TOP, CAPSULE_BOTTOM, CAPSULE_RADIUS);
+
+	// アニメーションの準備
 	InitAnimation();
 
-	// カプセルコライダの設定
-	capsule_ = std::make_unique<Capsule>(transform_);
-	capsule_->SetLocalPosTop(CAPSULE_TOP);
-	capsule_->SetLocalPosDown(CAPSULE_BOTTOM);
-	capsule_->SetRadius(CAPSULE_RADIUS);
-
+	// 初期状態
 	ChangeState(STATE::PLAY);
-}
-
-void Player::Update(void)
-{
-	stateUpdate_();
-	transform_.Update();
-	animationController_->Update();
-}
-
-void Player::Draw(void)
-{
-	auto& camera = SceneManager::GetInstance().GetCamera();
-	auto cPos = camera.GetPos();
-	material_->SetConstBufVS(0, { cPos.x, cPos.y, cPos.z, 0.0f });
-
-	renderer_->Draw();
-	DrawShadow(); // CharactorBaseのメソッドを呼ぶ
 }
 
 void Player::InitAnimation(void)
@@ -85,6 +65,29 @@ void Player::InitAnimation(void)
 	animationController_->Add((int)ANIM_TYPE::VICTORY, path + "Victory.mv1", 60.0f);
 
 	animationController_->Play((int)ANIM_TYPE::IDLE);
+}
+
+
+void Player::Update(void)
+{
+	stateUpdate_();
+	transform_.Update();
+	animationController_->Update();
+}
+
+void Player::Draw(void)
+{
+	if (material_ && renderer_)
+	{
+		auto& camera = SceneManager::GetInstance().GetCamera();
+		auto camaraPos = camera.GetPos();
+		material_->SetConstBufVS(0, { camaraPos.x, camaraPos.y, camaraPos.z, 0.0f });
+
+		renderer_->Draw();
+	}
+
+	// 丸影の描画
+	DrawShadow();
 }
 
 void Player::ChangeState(STATE state)
@@ -113,8 +116,6 @@ void Player::UpdatePlay(void)
 	ProcessJump();
 	Rotate();
 	CalcGravityPow();
-
-	// 親クラス(CharactorBase)の共通コリジョン処理を呼び出す
 	Collision();
 
 	transform_.quaRot = playerRotY_;

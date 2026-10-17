@@ -5,7 +5,7 @@
 #include "../Manager/SceneManager.h"
 #include "../Manager/ResourceManager.h"
 #include "Charactor/Player/Player.h"
-#include "Charactor/Enemy/Centaur.h"
+#include "Charactor/Enemy/BossEnemy.h"
 #include "Destroyer.h"
 #include "Planet.h"
 #include "Skull.h"
@@ -13,7 +13,7 @@
 #include "Common/Transform.h"
 #include "Stage.h"
 
-Stage::Stage(Player& player, Destroyer& destroyer, Centaur& centaur)
+Stage::Stage(Player& player, Destroyer& destroyer, BossEnemy& centaur)
 	:
 	resMng_(ResourceManager::GetInstance()),
 	player_(player), destroyer_(destroyer), centaur_(centaur)

@@ -5,7 +5,7 @@ class Stage;
 class SkyDome;
 class Player;
 class Destroyer;
-class Centaur;
+class BossEnemy;
 
 class GameScene : public SceneBase
 {
@@ -37,6 +37,6 @@ private:
 	std::unique_ptr<Destroyer> destroyer_;
 
 	// ケンタウロス
-	std::unique_ptr<Centaur> centaur_;
+	std::unique_ptr<BossEnemy> centaur_;
 
 };

@@ -33,7 +33,7 @@ public:
 		CLEAR,
 		TEX_TOON,
 		DESTROYER,
-		CENTAUR,
+		BOSS_ENEMY,
 		SKULL,
 		MUSCOMORPH,
 	};
