@@ -5,16 +5,15 @@ class Transform;
 
 class Camera
 {
-
 public:
 
 	// カメラスピード(度)
 	static constexpr float SPEED = 1.0f;
 
 	// カメラクリップ：NEAR
-	static constexpr float CAMERA_NEAR = 10.0f;
+	static constexpr float CAMERA_NEAR = 50.0f;
 
-	// カメラクリップ：NEAR
+	// カメラクリップ：FAR
 	static constexpr float CAMERA_FAR = 30000.0f;
 
 	// カメラの初期座標
@@ -106,6 +105,5 @@ private:
 	void SetBeforeDrawFixedPoint(void);
 	void SetBeforeDrawFollow(void);
 	void SetBeforeDrawSelfShot(void);
-
 };
 

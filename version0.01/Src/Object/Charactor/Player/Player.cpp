@@ -155,7 +155,7 @@ void Player::ProcessMove(void)
 void Player::ProcessJump(void)
 {
 	auto& scnMng_ = SceneManager::GetInstance();
-	bool isHit = CheckHitKey(KEY_INPUT_BACKSLASH);
+	bool isHit = CheckHitKey(KEY_INPUT_SPACE);
 
 	if (isHit && (isJump_ || IsEndLanding())) {
 		if (!isJump_) {

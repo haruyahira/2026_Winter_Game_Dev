@@ -26,14 +26,12 @@ void TitleScene::Init(void)
 
 void TitleScene::Update(void)
 {
-
 	// ƒV[ƒ“‘JˆÚ
 	InputManager& ins = InputManager::GetInstance();
 	if (ins.IsTrgDown(KEY_INPUT_SPACE))
 	{
 		SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME);
 	}
-
 }
 
 void TitleScene::Draw(void)

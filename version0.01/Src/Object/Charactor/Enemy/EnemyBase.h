@@ -6,8 +6,10 @@
 class Player;
 
 class EnemyBase : public CharactorBase
+
 {
 public:
+
 	// 敵の共通状態
 	enum class STATE
 	{
@@ -30,6 +32,7 @@ public:
 	void SetTarget(std::weak_ptr<Player> target);
 
 protected:
+
 	// 敵専用の変数
 	STATE state_;
 	std::weak_ptr<Player> target_;	// プレイヤーの場所を知るための参照
@@ -39,7 +42,4 @@ protected:
 
 	// CharactorBaseから委譲された着地処理
 	virtual void OnLanding(void) override;
-
-	// ※注意：InitDetail(void) はここでは実装しません！
-	// 「スライム」や「ドラゴン」など、実際の敵を作るクラスまで実装を先送りします。
 };

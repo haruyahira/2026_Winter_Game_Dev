@@ -26,23 +26,36 @@ void InputManager::Init(void)
 
 	// ゲームで使用したいキーを、
 	// 事前にここで登録しておいてください
-	InputManager::GetInstance().Add(KEY_INPUT_SPACE);
-	InputManager::GetInstance().Add(KEY_INPUT_N);
-	InputManager::GetInstance().Add(KEY_INPUT_Z);
+	// 登録したいキーをリスト化
+	const int keys[] = {
+		KEY_INPUT_A,
+		KEY_INPUT_D,
+		KEY_INPUT_N, 
+		KEY_INPUT_S,
+		KEY_INPUT_W, 
+		KEY_INPUT_Z,
 
-	InputManager::GetInstance().Add(KEY_INPUT_LEFT);
-	InputManager::GetInstance().Add(KEY_INPUT_RIGHT);
-	InputManager::GetInstance().Add(KEY_INPUT_UP);
-	InputManager::GetInstance().Add(KEY_INPUT_DOWN);
+		KEY_INPUT_LEFT,
+		KEY_INPUT_RIGHT,
+		KEY_INPUT_UP,
+		KEY_INPUT_DOWN,
 
-	InputManager::GetInstance().Add(KEY_INPUT_W);
-	InputManager::GetInstance().Add(KEY_INPUT_A);
-	InputManager::GetInstance().Add(KEY_INPUT_S);
-	InputManager::GetInstance().Add(KEY_INPUT_D);
+		KEY_INPUT_SPACE,
+		KEY_INPUT_LSHIFT,
+		KEY_INPUT_RSHIFT, 
+		KEY_INPUT_BACKSLASH,
 
-	InputManager::GetInstance().Add(KEY_INPUT_RSHIFT);
+		// 数字
+		KEY_INPUT_1
+	};
 
-	InputManager::GetInstance().Add(KEY_INPUT_BACKSLASH);
+	// インスタンス取得を1回で済ませる
+	auto& inputManager = InputManager::GetInstance();
+
+	// キー一括登録
+	for (int key : keys) {
+		inputManager.Add(key);
+	}
 
 	InputManager::MouseInfo info;
 
