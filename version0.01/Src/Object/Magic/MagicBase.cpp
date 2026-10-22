@@ -3,6 +3,7 @@
 MagicBase::MagicBase(void)
     : damage_(0)
     , speed_(0.0f)
+    , collisionRadius_(25.0f)
     , isAlive_(false)
 {
 }

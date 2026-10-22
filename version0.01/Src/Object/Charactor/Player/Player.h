@@ -1,10 +1,11 @@
 #pragma once
-#include <map>
+#include <memory>
 #include <functional>
 #include "../../../Utility/AsoUtility.h"
 #include "../../Magic/MagicBase.h"
 #include "../CharactorBase.h"
-#include "ChantSystem.h"
+
+class PlayerControlComponent;
 
 class Player : public CharactorBase
 {
@@ -24,7 +25,7 @@ public:
 	static constexpr float TIME_JUMP_IN = 0.5f;
 
 	// モデルの基本設定
-	static constexpr VECTOR INIT_POSITION = { 0.0f, -30.0f, 0.0f };  // プレイヤー初期座標
+	static constexpr VECTOR INIT_POSITION = { 0.0f, 0.0f, 0.0f };  // プレイヤー初期座標
 	static constexpr VECTOR INIT_AXIS = { 0.0f, 180.0f, 0.0f };  // プレイヤー初期軸
 	static constexpr float INIT_SCALE = 1.0f;  // プレイヤー初期スケール
 
@@ -67,70 +68,20 @@ public:
 		VICTORY 
 	};
 
-	// コンストラクタ
 	Player(void);
-	
-	// デストラクタ
-	~Player(void);
+	~Player(void) override;
 
-	void Update(void) override;
-	void Draw(void) override;
-
-	void SetSpawnFunc(std::function<void(std::unique_ptr<ActorBase>)> func) 
-	{
-		spawnActorFunc_ = func; 
-	}
+	void SetSpawnFunc(std::function<void(std::unique_ptr<ActorBase>)> func);
 
 protected:
 
-	// CharactorBaseから委譲された固有初期化と着地処理
 	void InitDetail(void) override;
 	void OnLanding(void) override;
 
 private:
 
-	std::unique_ptr<ChantSystem> chantSystem_; // 詠唱システム本体
-
-	// 状態管理
-	STATE state_;
-	std::map<STATE, std::function<void(void)>> stateChanges_;
-	std::function<void(void)> stateUpdate_;
-
+	std::shared_ptr<PlayerControlComponent> controlComp_;
 	std::function<void(std::unique_ptr<ActorBase>)> spawnActorFunc_;
 
-	// 回転
-	Quaternion playerRotY_;
-	Quaternion goalQuaRot_;
-	float stepRotTime_;
-
-	// ジャンプ受付
-	float stepJump_;
-
-	// 初期化
 	void InitAnimation(void);
-
-	// ステートごとの状態遷移管理
-	void ChangeState(STATE state);
-	void ChangeStateNone(void);
-	void ChangeStatePlay(void);
-	void ChangeStateChant(void);
-
-	// ステートごとの更新処理
-	void UpdateNone(void);
-	void UpdatePlay(void);
-	void UpdateChant(void);
-
-	// 操作
-	void ProcessMove(void);
-	void ProcessJump(void);
-
-	void ProcessDefense(void);  // 防御の処理
-	void ProcessAttack(void);  // 攻撃の処理
-	void ProcessMagic(void);  // 魔法の処理
-
-	void SetGoalRotate(double rotRad);
-	void Rotate(void);
-
-	// 判定処理
-	bool IsEndLanding(void);
 };

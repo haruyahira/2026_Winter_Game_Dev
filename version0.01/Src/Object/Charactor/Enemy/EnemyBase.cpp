@@ -1,19 +1,11 @@
+// EnemyBase.cpp
 #include "EnemyBase.h"
-#include "../../../Utility/AsoUtility.h"
-#include "../../../Manager/SceneManager.h"
-#include "../../../Manager/Camera.h"
-#include "../../../Renderer/ModelRenderer.h"
-#include "../../../Renderer/ModelMaterial.h"
-#include "../../Common/Capsule.h"
-#include "../../Common/AnimationController.h"
-
-
-// ※もしPlayerの座標を取得して追いかける処理を書く場合は、ここでPlayer.hをインクルードします
-// #include "../Player/Player.h"
+#include "../../Components/PhysicsComponent.h"
+#include "../../Components/StatusComponent.h"
 
 EnemyBase::EnemyBase(void)
+	: state_(STATE::IDLE)
 {
-	state_ = STATE::IDLE;
 }
 
 EnemyBase::~EnemyBase(void)
@@ -22,76 +14,41 @@ EnemyBase::~EnemyBase(void)
 
 void EnemyBase::Update(void)
 {
-	// AIの思考（プレイヤーを追いかける方向を計算するなど）
+	if (isDestroy()) return;
+
 	ProcessAI();
-
-	// 物理演算（重力と当たり判定
-	CalcGravityPow();
-	Collision();
-
-	// 座標とアニメーションの更新
-	transform_.Update();
-	if (animationController_)
-	{
-		animationController_->Update();
-	}
+	UpdateComponents();
 }
 
 void EnemyBase::Draw(void)
 {
-	if (material_ && renderer_)
+	if (isDestroy()) return;
+
+	DrawComponents();
+}
+
+bool EnemyBase::isDestroy(void)
+{
+	if (auto status = GetComponent<StatusComponent>())
 	{
-		auto& camera = SceneManager::GetInstance().GetCamera();
-		auto camaraPos = camera.GetPos();
-		material_->SetConstBufVS(0, { camaraPos.x, camaraPos.y, camaraPos.z, 0.0f });
-
-		renderer_->Draw();
+		return !status->IsAlive();
 	}
-
-	// 丸影の描画
-	DrawShadow();
-
-	if (capsule_)
-	{
-		Capsule cap = Capsule(*capsule_, transform_);
-
-		// ★修正：どんな壁やモデルの中に埋もれていても強制的に手前に描画する！
-		SetUseZBuffer3D(FALSE);
-		SetWriteZBuffer3D(FALSE);
-
-		DrawCapsule3D(
-			cap.GetPosTop(),
-			cap.GetPosDown(),
-			cap.GetRadius(),
-			16,
-			GetColor(0, 0, 255), // 敵は青（プレイヤー側は GetColor(255,0,0) ）
-			GetColor(0, 0, 0),
-			FALSE
-		);
-
-		// ★元に戻す
-		SetUseZBuffer3D(TRUE);
-		SetWriteZBuffer3D(TRUE);
-	}
+	return false;
 }
 
 void EnemyBase::SetTarget(std::weak_ptr<Player> target)
 {
-	// プレイヤーの情報を記憶する
 	target_ = target;
 }
 
 void EnemyBase::ProcessAI(void)
 {
-	// 敵の基本的なAIロジックをここに書きます
-	// 例：target_（プレイヤー）の座標と自分の座標を引き算して、近づくベクトルを作る など
-	// 今回は枠組みだけ用意しておきます
 }
 
 void EnemyBase::OnLanding(void)
 {
-	// 着地した時の処理
-	isJump_ = false;
-
-	// もし敵専用の着地アニメーションがあればここで再生する
+	if (physicsComp_)
+	{
+		physicsComp_->isJump_ = false;
+	}
 }

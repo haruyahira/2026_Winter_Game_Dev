@@ -1,3 +1,4 @@
+// Src/Manager/Camera.h
 #pragma once
 #include <DxLib.h>
 #include "../Common/Quaternion.h"
@@ -9,6 +10,9 @@ public:
 
 	// カメラスピード(度)
 	static constexpr float SPEED = 1.0f;
+
+	// マウス感度（ラジアン/ピクセル）
+	static constexpr float MOUSE_SENSITIVITY = 0.0025f;
 
 	// カメラクリップ：NEAR
 	static constexpr float CAMERA_NEAR = 50.0f;
@@ -28,7 +32,7 @@ public:
 	// カメラのX回転上限度角
 	static constexpr float LIMIT_X_UP_RAD = 40.0f * (DX_PI_F / 180.0f);
 	static constexpr float LIMIT_X_DW_RAD = 15.0f * (DX_PI_F / 180.0f);
-	
+
 	// カメラモード
 	enum class MODE
 	{
@@ -92,13 +96,16 @@ private:
 	// カメラの上方向
 	VECTOR cameraUp_;
 
+	// マウス視点初期化フラグ
+	bool isMouseInitialized_;
+
 	// カメラを初期位置に戻す
 	void SetDefault(void);
 
 	// 追従対象との位置同期を取る
 	void SyncFollow(void);
 
-	// カメラ操作
+	// カメラ操作（マウス＆キー対応）
 	void ProcessRot(void);
 
 	// モード別更新ステップ
@@ -106,4 +113,3 @@ private:
 	void SetBeforeDrawFollow(void);
 	void SetBeforeDrawSelfShot(void);
 };
-

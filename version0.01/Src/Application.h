@@ -1,3 +1,4 @@
+// Src/Application.h
 #pragma once
 #include <string>
 
@@ -6,9 +7,13 @@ class Application
 
 public:
 
-	// スクリーンサイズ
+	// 基準となるデフォルトスクリーンサイズ
 	static constexpr int SCREEN_SIZE_X = 1024;
 	static constexpr int SCREEN_SIZE_Y = 640;
+
+	// ★ 現在のモニターに合わせた実際の画面サイズを取得する関数
+	static int GetScreenWidth(void) { return screenWidth_; }
+	static int GetScreenHeight(void) { return screenHeight_; }
 
 	// データパス関連
 	//-------------------------------------------
@@ -19,7 +24,7 @@ public:
 	static const std::string PATH_SHADER;
 	//-------------------------------------------
 
-	// 明示的にインステンスを生成する
+	// 明示的にインスタンスを生成する
 	static void CreateInstance(void);
 
 	// 静的インスタンスの取得
@@ -45,14 +50,16 @@ private:
 	// 静的インスタンス
 	static Application* instance_;
 
+	// ★ 実際の画面解像度
+	static int screenWidth_;
+	static int screenHeight_;
+
 	// 初期化失敗
 	bool isInitFail_;
 
 	// 解放失敗
 	bool isReleaseFail_;
 
-	// デフォルトコンストラクタをprivateにして、
-	// 外部から生成できない様にする
 	Application(void);
 	Application(const Application& manager) = default;
 	~Application(void) = default;

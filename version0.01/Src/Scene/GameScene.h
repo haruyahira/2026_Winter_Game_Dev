@@ -1,7 +1,10 @@
+// GameScene.h
 #pragma once
 #include <memory>
+#include <vector>
 #include "SceneBase.h"
 class ActorBase;
+class EnemyBase;
 class Stage;
 class SkyDome;
 class Player;
@@ -12,7 +15,7 @@ class GameScene : public SceneBase
 {
 
 public:
-	
+
 	// コンストラクタ
 	GameScene(void);
 
@@ -43,4 +46,10 @@ private:
 	// ケンタウロス
 	std::unique_ptr<BossEnemy> centaur_;
 
+	// クリア遷移用タイマー
+	float clearTimer_;
+	bool isStageCleared_;
+
+	// 魔法と敵の当たり判定
+	void CheckCollision(void);
 };
