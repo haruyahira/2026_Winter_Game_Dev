@@ -4,6 +4,7 @@
 
 class BossEnemy : public EnemyBase
 {
+
 public:
 
 	// モデルの基本設定（変更禁止の定数そのまま維持）
@@ -38,6 +39,7 @@ public:
 	};
 
 	BossEnemy(void);
+<<<<<<< HEAD
 	virtual ~BossEnemy(void);
 
 protected:
@@ -47,4 +49,13 @@ protected:
 private:
 
 	void InitAnimation(void);
+=======
+	~BossEnemy(void);
+
+	void InitDetail(void) override;
+	void InitAnimation(void);
+
+	// EnemyBaseから毎フレーム呼ばれる
+	void ProcessAI(void) override;
+>>>>>>> f9ee5eae87468ea5e2cf6eeaa42714623e2e46bd
 };
