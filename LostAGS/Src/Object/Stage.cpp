@@ -28,14 +28,14 @@ Stage::~Stage(void)
 	planets_.clear();
 
 	// 骸骨オブジェクト
-	//skulls_.clear();
+	skulls_.clear();
 }
 
 void Stage::Init(void)
 {
 	MakeMainStage();
 	
-	//MakeEnvironment();
+	MakeEnvironment();
 	
 	step_ = -1.0f;
 }
@@ -48,11 +48,11 @@ void Stage::Update(void)
 		s.second->Update();
 	}
 
-	//// 骸骨オブジェクト
-	//for (const auto& s : skulls_)
-	//{
-	//	s->Update();
-	//}
+	// 骸骨オブジェクト
+	for (const auto& s : skulls_)
+	{
+		s->Update();
+	}
 }
 
 void Stage::Draw(void)
@@ -63,11 +63,11 @@ void Stage::Draw(void)
 		s.second->Draw();
 	}
 
-	//// 骸骨オブジェクト
-	//for (const auto& s : skulls_)
-	//{
-	//	s->Draw();
-	//}
+	// 骸骨オブジェクト
+	for (const auto& s : skulls_)
+	{
+		s->Draw();
+	}
 }
 
 void Stage::ChangeStage(NAME type)
@@ -77,11 +77,11 @@ void Stage::ChangeStage(NAME type)
 	// 対象のステージを取得する
 	activePlanet_ = GetPlanet(activeName_);
 
-	// ステージの当たり判定を設定
+	// ステージの当たり判定をプレイヤーに設定
 	player_.ClearCollider();
 	player_.AddCollider(activePlanet_.lock()->GetTransform().collider);
-	/*destroyer_.ClearCollider();
-	destroyer_.AddCollider(activePlanet_.lock()->GetTransform().collider);*/
+	destroyer_.ClearCollider();
+	destroyer_.AddCollider(activePlanet_.lock()->GetTransform().collider);
 	centaur_.ClearCollider();
 	centaur_.AddCollider(activePlanet_.lock()->GetTransform().collider);
 
@@ -107,7 +107,7 @@ void Stage::MakeMainStage(void)
 		resMng_.LoadModelDuplicate(ResourceManager::SRC::MAIN_PLANET));
 	planetTrans.scl = AsoUtility::VECTOR_ONE;
 	planetTrans.quaRot = Quaternion();
-	planetTrans.pos = { 0.0f, 0.0f, 0.0f };
+	planetTrans.pos = { 0.0f, -760.0f, 0.0f };
 
 	// 当たり判定(コライダ)作成
 	planetTrans.MakeCollider(Collider::TYPE::STAGE);

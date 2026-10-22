@@ -43,10 +43,10 @@ void GameScene::Init(void)
 	player_->SetSpawnFunc([this](std::unique_ptr<ActorBase> actor) {
 		this->dynamicActors_.push_back(std::move(actor));
 		});
-	
+
 	// 破壊者
-	/*destroyer_ = std::make_unique<Destroyer>();
-	destroyer_->Init();*/
+	destroyer_ = std::make_unique<Destroyer>();
+	destroyer_->Init();
 
 	// ケンタウロス
 	centaur_ = std::make_unique<BossEnemy>();
@@ -79,7 +79,7 @@ void GameScene::Update(void)
 	skyDome_->Update();
 	stage_->Update();
 	player_->Update();
-	//destroyer_->Update();
+	destroyer_->Update();
 	centaur_->Update();
 
 	for (auto& actor : dynamicActors_)
@@ -105,9 +105,9 @@ void GameScene::Update(void)
 
 	// ★ すべての敵（ボスと破壊者）を倒したら2秒後にクリア画面へ遷移！
 	bool bossDead = (!centaur_ || centaur_->isDestroy());
-	//bool zakoDead = (!destroyer_ || destroyer_->isDestroy());
+	bool zakoDead = (!destroyer_ || destroyer_->isDestroy());
 
-	if (bossDead && /*zakoDead &&*/ !isStageCleared_)
+	if (bossDead && zakoDead && !isStageCleared_)
 	{
 		clearTimer_ += SceneManager::GetInstance().GetDeltaTime();
 		if (clearTimer_ >= 2.0f)
@@ -156,9 +156,9 @@ void GameScene::Draw(void)
 {
 	skyDome_->Draw();
 	stage_->Draw();
-	
+
 	player_->Draw();
-	//destroyer_->Draw();
+	destroyer_->Draw();
 	centaur_->Draw();
 
 	for (auto& actor : dynamicActors_)

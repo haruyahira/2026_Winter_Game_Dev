@@ -10,7 +10,7 @@ public:
 	static constexpr int DEFAULT_DAMAGE = 20;
 	static constexpr float DEFAULT_SPEED = 10.0f;
 	static constexpr float DEFAULT_LIFE_TIME = 5.0f;
-	static constexpr float DEFAULT_COLLISION_RADIUS = 30.0f;
+	static constexpr float DEFAULT_COLLISION_RADIUS = 25.0f;
 	static constexpr float EXPLODE_DURATION = 0.2f; // ÇÕÇ∂ÇØÇÈââèoÇÃéûä‘
 
 	FireBall(void);

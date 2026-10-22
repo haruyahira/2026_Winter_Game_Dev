@@ -1,10 +1,8 @@
-// Destroyer.cpp
 #include "Destroyer.h"
 #include "../Manager/ResourceManager.h"
 #include "Components/AnimationComponent.h"
 #include "Components/CapsuleColliderComponent.h"
 #include "Components/WanderAIComponent.h"
-#include "Components/StatusComponent.h"
 
 Destroyer::Destroyer(void)
 {
@@ -35,9 +33,6 @@ void Destroyer::InitDetail(void)
 
 	// アニメーション設定
 	InitAnimation();
-
-	// HP管理コンポーネントを取り付ける
-	AddComponent(std::make_shared<StatusComponent>(MAX_HP, 130.0f));
 
 	// 徘徊AIコンポーネントを取り付ける（IDLE=3, RUN=10, 速度=4.0f）
 	AddComponent(std::make_shared<WanderAIComponent>(

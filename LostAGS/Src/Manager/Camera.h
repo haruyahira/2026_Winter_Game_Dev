@@ -11,7 +11,7 @@ public:
 	// カメラスピード(度)
 	static constexpr float SPEED = 1.0f;
 
-	// マウス感度（ラジアン/ピクセル）
+	// ★ マウス感度（ラジアン/ピクセル）
 	static constexpr float MOUSE_SENSITIVITY = 0.0025f;
 
 	// カメラクリップ：NEAR

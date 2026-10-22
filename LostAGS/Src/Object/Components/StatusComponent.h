@@ -22,6 +22,6 @@ private:
 	int hp_;
 	int maxHp_;
 	bool isAlive_;
-	float barOffsetY_;  // 頭上HPバーの高さオフセット
-	float damageFlashTimer_;  // 被弾時の赤点滅タイマー
+	float barOffsetY_;      // 頭上HPバーの高さオフセット
+	float damageFlashTimer_; // 被弾時の赤点滅タイマー
 };

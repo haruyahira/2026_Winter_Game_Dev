@@ -1,4 +1,3 @@
-// EnemyBase.h
 #pragma once
 #include <memory>
 #include "../CharactorBase.h"
@@ -26,7 +25,6 @@ public:
 	// EnemyBase共通の更新・描画（コンポーネントを一括更新・描画）
 	virtual void Update(void) override;
 	virtual void Draw(void) override;
-	virtual bool isDestroy(void) override;
 
 	// 狙う相手（プレイヤー）をセットする
 	void SetTarget(std::weak_ptr<Player> target);
