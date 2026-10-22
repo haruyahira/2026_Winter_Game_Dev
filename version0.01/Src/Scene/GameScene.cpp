@@ -30,6 +30,9 @@ void GameScene::Init(void)
 	// プレイヤー
 	player_ = std::make_unique<Player>();
 	player_->Init();
+	player_->SetSpawnFunc([this](std::unique_ptr<ActorBase> actor) {
+		this->dynamicActors_.push_back(std::move(actor));
+		});
 	
 	// 破壊者
 	destroyer_ = std::make_unique<Destroyer>();
@@ -75,6 +78,19 @@ void GameScene::Update(void)
 
 	centaur_->Update();
 
+	for (auto it = dynamicActors_.begin(); it != dynamicActors_.end(); )
+	{
+		(*it)->Update();
+
+		if ((*it)->isDestroy())
+		{
+			it = dynamicActors_.erase(it); // 消滅！
+		}
+		else
+		{
+			++it;
+		}
+	}
 }
 
 void GameScene::Draw(void)
@@ -88,10 +104,24 @@ void GameScene::Draw(void)
 	destroyer_->Draw();
 	centaur_->Draw();
 
+	for (auto& actor : dynamicActors_)
+	{
+		actor->Draw();
+	}
+
 	// ヘルプ
 	DrawFormatString(840, 20, 0x000000, "移動　　：WASD");
 	DrawFormatString(840, 40, 0x000000, "カメラ　：矢印キー");
 	DrawFormatString(840, 60, 0x000000, "ダッシュ：右Shift");
-	DrawFormatString(840, 80, 0x000000, "ジャンプ：＼(バクスラ)");
+	DrawFormatString(840, 80, 0x000000, "ジャンプ：SPACE");
 
+	// 今ゲーム内に存在している魔法の数を画面左上に表示する
+	DrawFormatString(20, 20, 0xffffff, "魔法の数：%d", dynamicActors_.size());
+	if (!dynamicActors_.empty())
+	{
+		auto pos = dynamicActors_[0]->GetTransform().pos;
+		DrawFormatString(20, 40, 0xffffff, "魔法の座標: X:%.1f Y:%.1f Z:%.1f", pos.x, pos.y, pos.z);
+	}
+	auto playerPos = player_->GetTransform().pos;
+	DrawFormatString(20, 60, 0xffffff, "座標: X:%.1f Y:%.1f Z:%.1f", playerPos.x, playerPos.y, playerPos.z);
 }

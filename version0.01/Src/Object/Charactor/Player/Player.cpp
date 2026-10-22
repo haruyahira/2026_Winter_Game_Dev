@@ -10,6 +10,7 @@
 #include "../../Common/AnimationController.h"
 #include "../../Common/Capsule.h"
 #include "../../Common/Collider.h"
+#include "../../Magic/FireBall.h"
 #include "../../Planet.h"
 #include "Player.h"
 
@@ -24,6 +25,8 @@ Player::Player(void)
 
 	stateChanges_.emplace(STATE::NONE, std::bind(&Player::ChangeStateNone, this));
 	stateChanges_.emplace(STATE::PLAY, std::bind(&Player::ChangeStatePlay, this));
+	stateChanges_.emplace(STATE::CHANT, std::bind(&Player::ChangeStateChant, this));
+	chantSystem_ = std::make_unique<ChantSystem>();
 }
 
 Player::~Player(void) 
@@ -88,6 +91,8 @@ void Player::Draw(void)
 
 	// 丸影の描画
 	DrawShadow();
+
+	if (chantSystem_) chantSystem_->Draw();
 }
 
 void Player::ChangeState(STATE state)
@@ -106,6 +111,17 @@ void Player::ChangeStatePlay(void)
 	stateUpdate_ = std::bind(&Player::UpdatePlay, this); 
 }
 
+void Player::ChangeStateChant(void)
+{
+	stateUpdate_ = std::bind(&Player::UpdateChant, this);
+
+	// 詠唱アニメーション（とりあえず待機モーション等）
+	animationController_->Play((int)ANIM_TYPE::WARP_PAUSE);
+
+	// タイピング開始
+	chantSystem_->Start();
+}
+
 void Player::UpdateNone(void) 
 {
 }
@@ -114,11 +130,48 @@ void Player::UpdatePlay(void)
 {
 	ProcessMove();
 	ProcessJump();
+	ProcessAttack();
+	ProcessDefense();
 	Rotate();
 	CalcGravityPow();
 	Collision();
 
 	transform_.quaRot = playerRotY_;
+}
+
+void Player::UpdateChant(void)
+{
+	auto& ins = InputManager::GetInstance();
+
+	if (ins.IsTrgDown(KEY_INPUT_TAB))
+	{
+		chantSystem_->Cancel();      // 詠唱システムの文字などをリセット
+		ChangeState(STATE::PLAY);    // 通常のプレイ状態に戻る
+		return;                      // ここで処理を終了する
+	}
+
+	// 詠唱システムの更新（タイピング受け付け）
+	chantSystem_->Update();
+
+	// Enterキーが押されて詠唱が完了したら
+	if (chantSystem_->IsFinished())
+	{
+		std::string spell = chantSystem_->GetTypedText();
+
+		// ★ 呪文が "fire ball" だったら魔法を発動！
+		if (spell == "fire ball")
+		{
+			ProcessMagic(); // ファイアボール発射！
+		}
+		else
+		{
+			// 呪文を間違えた時の処理（今後の拡張用：ボフッという煙を出すなど）
+		}
+
+		// 詠唱モードを終了して、通常のプレイ状態に戻る
+		chantSystem_->Cancel();
+		ChangeState(STATE::PLAY);
+	}
 }
 
 void Player::ProcessMove(void)
@@ -171,6 +224,48 @@ void Player::ProcessJump(void)
 
 	if (!isHit) {
 		stepJump_ = TIME_JUMP_IN;
+	}
+}
+
+void Player::ProcessDefense(void)
+{
+}
+
+void Player::ProcessAttack(void)
+{
+	auto& ins = InputManager::GetInstance();
+
+	// 例：左クリックやエンターキーで「通常攻撃（近接）」
+	if (ins.IsNew(KEY_INPUT_RETURN))
+	{
+	}
+
+	// Eキーで「詠唱モード」へ移行！
+	if (ins.IsTrgDown(KEY_INPUT_TAB))
+	{
+		ChangeState(STATE::CHANT);
+	}
+
+}
+
+void Player::ProcessMagic(void)
+{
+	// プレイヤーの正面方向（前ベクトル）を取得
+	VECTOR forward = playerRotY_.GetForward();
+
+	// 魔法の初期座標を設定
+	Transform spawnTrans = transform_;
+	spawnTrans.pos = VAdd(spawnTrans.pos, VGet(0.0f, 80.0f, 0.0f));
+	spawnTrans.pos = VAdd(spawnTrans.pos, VScale(forward, 30.0f));
+
+	// 魔法生成
+	auto magic = std::make_unique<FireBall>();
+	magic->Init();
+	magic->Fire(spawnTrans, forward);
+
+	if (spawnActorFunc_)
+	{
+		spawnActorFunc_(std::move(magic));
 	}
 }
 

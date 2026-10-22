@@ -6,7 +6,6 @@
 
 class ResourceManager
 {
-
 public:
 
 	// リソース名
@@ -36,6 +35,7 @@ public:
 		BOSS_ENEMY,
 		SKULL,
 		MUSCOMORPH,
+		FIREBALL
 	};
 
 	// 明示的にインステンスを生成する
@@ -80,5 +80,4 @@ private:
 
 	// 内部ロード
 	Resource& _Load(SRC src);
-
 };

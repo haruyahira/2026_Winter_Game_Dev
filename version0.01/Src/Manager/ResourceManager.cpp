@@ -26,6 +26,7 @@ void ResourceManager::Init(void)
 	static std::string PATH_IMG = Application::PATH_IMAGE;
 	static std::string PATH_MDL = Application::PATH_MODEL;
 	static std::string PATH_EFF = Application::PATH_EFFECT;
+	static std::string PATH_MGC = Application::PATH_MAGIC;
 
 	std::unique_ptr<Resource> res;
 
@@ -66,13 +67,17 @@ void ResourceManager::Init(void)
 	resourcesMap_.emplace(SRC::DESTROYER, std::move(res));
 	
 	// ケンタウロス
-	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Centaur/Centaur.mv1");
+	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Centaur/KariEnemy.mv1");
 	resourcesMap_.emplace(SRC::BOSS_ENEMY, std::move(res));
 
 	// 骸骨オブジェクト
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MDL + "Skull/Skull.mv1");
 	resourcesMap_.emplace(SRC::SKULL, std::move(res));
 
+	// 魔法
+	// ファイアボール
+	res = std::make_unique<RES>(RES_T::MODEL, PATH_MGC + "Fireball/Fireball.mv1");
+	resourcesMap_.emplace(SRC::FIREBALL, std::move(res));
 }
 
 void ResourceManager::Release(void)

@@ -4,6 +4,7 @@
 #include "../../../Manager/Camera.h"
 #include "../../../Renderer/ModelRenderer.h"
 #include "../../../Renderer/ModelMaterial.h"
+#include "../../Common/Capsule.h"
 #include "../../Common/AnimationController.h"
 
 
@@ -49,6 +50,29 @@ void EnemyBase::Draw(void)
 
 	// 丸影の描画
 	DrawShadow();
+
+	if (capsule_)
+	{
+		Capsule cap = Capsule(*capsule_, transform_);
+
+		// ★修正：どんな壁やモデルの中に埋もれていても強制的に手前に描画する！
+		SetUseZBuffer3D(FALSE);
+		SetWriteZBuffer3D(FALSE);
+
+		DrawCapsule3D(
+			cap.GetPosTop(),
+			cap.GetPosDown(),
+			cap.GetRadius(),
+			16,
+			GetColor(0, 0, 255), // 敵は青（プレイヤー側は GetColor(255,0,0) ）
+			GetColor(0, 0, 0),
+			FALSE
+		);
+
+		// ★元に戻す
+		SetUseZBuffer3D(TRUE);
+		SetWriteZBuffer3D(TRUE);
+	}
 }
 
 void EnemyBase::SetTarget(std::weak_ptr<Player> target)

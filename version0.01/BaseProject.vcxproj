@@ -19,6 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Object\Charactor\Player\ChantSystem.cpp" />
+    <ClCompile Include="Src\Object\Magic\FireBall.cpp" />
+    <ClCompile Include="Src\Object\Magic\MagicBase.cpp" />
     <ClCompile Include="Src\Object\Charactor\Enemy\EnemyBase.cpp" />
     <ClCompile Include="Src\Object\Charactor\CharactorBase.cpp" />
     <ClCompile Include="Src\Object\Charactor\Enemy\BossEnemy.cpp" />
@@ -52,6 +55,9 @@
     <ClCompile Include="Src\Utility\AsoUtility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Object\Charactor\Player\ChantSystem.h" />
+    <ClInclude Include="Src\Object\Magic\FireBall.h" />
+    <ClInclude Include="Src\Object\Magic\MagicBase.h" />
     <ClInclude Include="Src\Object\Charactor\Enemy\EnemyBase.h" />
     <ClInclude Include="Src\Object\Charactor\CharactorBase.h" />
     <ClInclude Include="Src\Object\Charactor\Enemy\BossEnemy.h" />

@@ -30,6 +30,7 @@ void InputManager::Init(void)
 	const int keys[] = {
 		KEY_INPUT_A,
 		KEY_INPUT_D,
+		KEY_INPUT_E,
 		KEY_INPUT_N, 
 		KEY_INPUT_S,
 		KEY_INPUT_W, 
@@ -44,6 +45,7 @@ void InputManager::Init(void)
 		KEY_INPUT_LSHIFT,
 		KEY_INPUT_RSHIFT, 
 		KEY_INPUT_BACKSLASH,
+		KEY_INPUT_TAB,
 
 		// êîéö
 		KEY_INPUT_1

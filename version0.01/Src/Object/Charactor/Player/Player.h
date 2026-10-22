@@ -2,7 +2,9 @@
 #include <map>
 #include <functional>
 #include "../../../Utility/AsoUtility.h"
+#include "../../Magic/MagicBase.h"
 #include "../CharactorBase.h"
+#include "ChantSystem.h"
 
 class Player : public CharactorBase
 {
@@ -42,10 +44,11 @@ public:
 	// プレイヤーの状態
 	enum class STATE 
 	{ 
-		NONE,	
-		PLAY,	
-		WARP_RESERVE,  
-		WARP_MOVE,  
+		NONE,
+		PLAY,
+		CHANT,  // 詠唱
+		WARP_RESERVE,
+		WARP_MOVE,
 		DEAD,
 		VICTORY,
 		END
@@ -73,6 +76,11 @@ public:
 	void Update(void) override;
 	void Draw(void) override;
 
+	void SetSpawnFunc(std::function<void(std::unique_ptr<ActorBase>)> func) 
+	{
+		spawnActorFunc_ = func; 
+	}
+
 protected:
 
 	// CharactorBaseから委譲された固有初期化と着地処理
@@ -81,10 +89,14 @@ protected:
 
 private:
 
+	std::unique_ptr<ChantSystem> chantSystem_; // 詠唱システム本体
+
 	// 状態管理
 	STATE state_;
 	std::map<STATE, std::function<void(void)>> stateChanges_;
 	std::function<void(void)> stateUpdate_;
+
+	std::function<void(std::unique_ptr<ActorBase>)> spawnActorFunc_;
 
 	// 回転
 	Quaternion playerRotY_;
@@ -101,14 +113,21 @@ private:
 	void ChangeState(STATE state);
 	void ChangeStateNone(void);
 	void ChangeStatePlay(void);
+	void ChangeStateChant(void);
 
 	// ステートごとの更新処理
 	void UpdateNone(void);
 	void UpdatePlay(void);
+	void UpdateChant(void);
 
 	// 操作
 	void ProcessMove(void);
 	void ProcessJump(void);
+
+	void ProcessDefense(void);  // 防御の処理
+	void ProcessAttack(void);  // 攻撃の処理
+	void ProcessMagic(void);  // 魔法の処理
+
 	void SetGoalRotate(double rotRad);
 	void Rotate(void);
 

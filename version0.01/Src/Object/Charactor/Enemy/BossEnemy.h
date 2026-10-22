@@ -7,13 +7,13 @@ public:
 
 	// モデルの基本設定
 	static constexpr VECTOR INIT_POSITION = { 150.0f, -40.0f, 200.0f };  // ボス初期座標
-	static constexpr VECTOR INIT_AXIS = { 0.0f, 300.0f, 0.0f };  // ボス初期軸
-	static constexpr float INIT_SCALE = 1.0f;  // ボス初期スケール
+	static constexpr VECTOR INIT_AXIS = { 0.0f, 180.0f, 0.0f };  // ボス初期軸
+	static constexpr float INIT_SCALE = 0.3f;  // ボス初期スケール
 
 	// 当たり判定（カプセル）のサイズ設定
 	static constexpr VECTOR CAPSULE_TOP = { 0.0f, 110.0f, 0.0f };  // カプセル上端座標
 	static constexpr VECTOR CAPSULE_BOTTOM = { 0.0f, 30.0f, 0.0f };  // カプセル下端座標
-	static constexpr float CAPSULE_RADIUS = 20.0f;  // カプセルの半径
+	static constexpr float CAPSULE_RADIUS = 60.0f;  // カプセルの半径
 
 	// ボスのAI状態
 	enum class STATE

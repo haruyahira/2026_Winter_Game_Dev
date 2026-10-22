@@ -17,6 +17,8 @@ public:
 
 	const Transform& GetTransform(void) const;
 
+	virtual bool isDestroy(void) { return false; }
+
 private:
 
 	int test;

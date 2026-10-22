@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "SceneBase.h"
+class ActorBase;
 class Stage;
 class SkyDome;
 class Player;
@@ -23,6 +24,9 @@ public:
 	void Draw(void) override;
 
 private:
+
+	// 魔法
+	std::vector<std::unique_ptr<ActorBase>> dynamicActors_;
 
 	// ステージ
 	std::unique_ptr<Stage> stage_;

@@ -6,11 +6,11 @@
 #include "../Manager/ResourceManager.h"
 #include "Charactor/Player/Player.h"
 #include "Charactor/Enemy/BossEnemy.h"
+#include "Common/Collider.h"
+#include "Common/Transform.h"
 #include "Destroyer.h"
 #include "Planet.h"
 #include "Skull.h"
-#include "Common/Collider.h"
-#include "Common/Transform.h"
 #include "Stage.h"
 
 Stage::Stage(Player& player, Destroyer& destroyer, BossEnemy& centaur)
@@ -24,29 +24,24 @@ Stage::Stage(Player& player, Destroyer& destroyer, BossEnemy& centaur)
 
 Stage::~Stage(void)
 {
-	
 	// ˜f¯
 	planets_.clear();
 
 	// Š[œƒIƒuƒWƒFƒNƒg
 	skulls_.clear();
-
 }
 
 void Stage::Init(void)
 {
-
 	MakeMainStage();
 	
 	MakeEnvironment();
 	
 	step_ = -1.0f;
-
 }
 
 void Stage::Update(void)
 {
-
 	// ˜f¯
 	for (const auto& s : planets_)
 	{
@@ -58,12 +53,10 @@ void Stage::Update(void)
 	{
 		s->Update();
 	}
-
 }
 
 void Stage::Draw(void)
 {
-
 	// ˜f¯
 	for (const auto& s : planets_)
 	{
@@ -75,12 +68,10 @@ void Stage::Draw(void)
 	{
 		s->Draw();
 	}
-
 }
 
 void Stage::ChangeStage(NAME type)
 {
-
 	activeName_ = type;
 
 	// ‘ÎÛ‚ÌƒXƒe[ƒW‚ðŽæ“¾‚·‚é
@@ -95,7 +86,6 @@ void Stage::ChangeStage(NAME type)
 	centaur_.AddCollider(activePlanet_.lock()->GetTransform().collider);
 
 	step_ = TIME_STAGE_CHANGE;
-
 }
 
 std::weak_ptr<Planet> Stage::GetPlanet(NAME type)
@@ -110,7 +100,6 @@ std::weak_ptr<Planet> Stage::GetPlanet(NAME type)
 
 void Stage::MakeMainStage(void)
 {
-
 	// Å‰‚Ì˜f¯
 	//------------------------------------------------------------------------------
 	Transform planetTrans;
@@ -132,12 +121,10 @@ void Stage::MakeMainStage(void)
 	planet->Init();
 	planets_.emplace(name, std::move(planet));
 	//------------------------------------------------------------------------------
-
 }
 
 void Stage::MakeEnvironment(void)
 {
-
 	auto skull = std::make_shared<Skull>();
 	skull->Init();
 	skull->SetPos({ -300.0f, -30.0f, 500.0f });
@@ -152,5 +139,4 @@ void Stage::MakeEnvironment(void)
 	skull->Init();
 	skull->SetPos({ -20.0f, -45.0f, 1600.0f });
 	skulls_.emplace_back(std::move(skull));
-
 }
