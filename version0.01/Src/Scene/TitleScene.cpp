@@ -1,4 +1,3 @@
-// Src/Scene/TitleScene.cpp
 #include <cmath>
 #include <algorithm>
 #include <cctype>
@@ -10,6 +9,7 @@
 #include "../Manager/InputManager.h"
 #include "../Manager/Camera.h"
 #include "../Object/SkyDome.h"
+#include "../Object/Magic/SystemMagic.h"
 #include "../Object/Charactor/Player/ChantSystem.h"
 #include "TitleScene.h"
 
@@ -73,7 +73,9 @@ void TitleScene::Init(void)
 
 	// タイトル用の詠唱システム準備
 	chantSystem_ = std::make_unique<ChantSystem>();
-	chantSystem_->SetHintText("【Enter】詠唱発動 / 【Tab】閉じる （開始の呪文: GameStart）");
+
+	// ヒントを改行入りでセット
+	chantSystem_->SetHintText("【Enter/左ｸﾘｯｸ】詠唱発動 / 【Tab】閉じる\n開始の呪文: gamestart / 終了の呪文: exit");
 }
 
 void TitleScene::Update(void)
@@ -109,18 +111,13 @@ void TitleScene::Update(void)
 
 		if (chantSystem_->IsFinished())
 		{
-			std::string spell = chantSystem_->GetTypedText();
-			// 大文字・小文字やスペースの有無を吸収して判定（"GameStart", "gamestart", "game start" すべてOK）
-			std::string normalized = "";
-			for (char c : spell)
-			{
-				if (c != ' ') normalized += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-			}
+			// スペース削除・小文字化を1行で取得
+			std::string spell = chantSystem_->GetNormalizedSpell();
 
-			if (normalized == "gamestart")
+			// システム魔法なら実行して終わる
+			if (SystemMagic::Execute(spell))
 			{
 				chantSystem_->Cancel();
-				SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME);
 				return;
 			}
 			else
@@ -212,7 +209,7 @@ void TitleScene::Draw(void)
 
 	// 3. タイトルロゴ（美しいアンチエイリアス＋発光エッジ）
 	std::string subTitle = "― 詠唱魔法アクション ―";
-	std::string mainTitle = "CHANT ARCANUM";
+	std::string mainTitle = "ソロ・アルカナ・オフライン";
 
 	int subW = GetDrawStringWidthToHandle(subTitle.c_str(), static_cast<int>(subTitle.length()), fontSub_);
 	int mainW = GetDrawStringWidthToHandle(mainTitle.c_str(), static_cast<int>(mainTitle.length()), fontTitle_);
@@ -231,7 +228,7 @@ void TitleScene::Draw(void)
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
 
 		std::string guide1 = "Press [ SPACE ] to Quick Start";
-		std::string guide2 = "Press [ TAB ] to Chant \"GameStart\"";
+		std::string guide2 = "Press [ TAB ] to Chant \"GameStart/Exit\"";
 
 		int g1W = GetDrawStringWidthToHandle(guide1.c_str(), static_cast<int>(guide1.length()), fontGuide_);
 		int g2W = GetDrawStringWidthToHandle(guide2.c_str(), static_cast<int>(guide2.length()), fontGuide_);
@@ -247,7 +244,7 @@ void TitleScene::Draw(void)
 		// 呪文間違い時のエラーメッセージ
 		if (isError_)
 		{
-			std::string errText = "呪文が違います！ \"GameStart\" と詠唱してください";
+			std::string errText = "呪文が違います！ 正しい呪文を詠唱してください";
 			int errW = GetDrawStringWidthToHandle(errText.c_str(), static_cast<int>(errText.length()), fontSub_);
 			DrawStringToHandle(cx - (errW / 2), static_cast<int>(screenH * 0.72f),
 				errText.c_str(), GetColor(255, 80, 80), fontSub_, GetColor(40, 0, 0));

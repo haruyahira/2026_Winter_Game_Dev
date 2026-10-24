@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Object\Magic\GenericMagic.cpp" />
     <ClCompile Include="Src\Scene\ClearScene.cpp" />
     <ClCompile Include="Src\Object\Components\MouseLookComponent.cpp" />
     <ClCompile Include="Src\Object\Charactor\Player\ChantSystem.cpp" />
@@ -31,7 +32,6 @@
     <ClCompile Include="Src\Object\Components\ProjectileComponent.cpp" />
     <ClCompile Include="Src\Object\Components\ShadowRenderComponent.cpp" />
     <ClCompile Include="Src\Object\Components\WanderAIComponent.cpp" />
-    <ClCompile Include="Src\Object\Magic\FireBall.cpp" />
     <ClCompile Include="Src\Object\Magic\MagicBase.cpp" />
     <ClCompile Include="Src\Object\Charactor\Enemy\EnemyBase.cpp" />
     <ClCompile Include="Src\Object\Charactor\CharactorBase.cpp" />
@@ -65,8 +65,11 @@
     <ClCompile Include="Src\Scene\TitleScene.cpp" />
     <ClCompile Include="Src\Utility\AsoUtility.cpp" />
     <ClCompile Include="Src\Object\Components\StatusComponent.cpp" />
+    <ClCompile Include="Src\Object\Magic\SystemMagic.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Object\Magic\GenericMagic.h" />
+    <ClInclude Include="Src\Object\Magic\MagicData.h" />
     <ClInclude Include="Src\Scene\ClearScene.h" />
     <ClInclude Include="Src\Object\Components\MouseLookComponent.h" />
     <ClInclude Include="Src\Object\Charactor\Player\ChantSystem.h" />
@@ -80,7 +83,6 @@
     <ClInclude Include="Src\Object\Components\ProjectileComponent.h" />
     <ClInclude Include="Src\Object\Components\ShadowRenderComponent.h" />
     <ClInclude Include="Src\Object\Components\WanderAIComponent.h" />
-    <ClInclude Include="Src\Object\Magic\FireBall.h" />
     <ClInclude Include="Src\Object\Magic\MagicBase.h" />
     <ClInclude Include="Src\Object\Charactor\Enemy\EnemyBase.h" />
     <ClInclude Include="Src\Object\Charactor\CharactorBase.h" />
@@ -114,6 +116,7 @@
     <ClInclude Include="Src\Scene\TitleScene.h" />
     <ClInclude Include="Src\Utility\AsoUtility.h" />
     <ClInclude Include="Src\Object\Components\StatusComponent.h" />
+    <ClInclude Include="Src\Object\Magic\SystemMagic.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\Shader\Common\Pixel\PixelShader2DHeader.hlsli" />

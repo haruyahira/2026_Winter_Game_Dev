@@ -1,10 +1,13 @@
-// Src/Object/Components/PlayerControlComponent.cpp
 #include "PlayerControlComponent.h"
 #include <string>
+#include <cctype>
 #include "PhysicsComponent.h"
 #include "AnimationComponent.h"
+#include "MouseLookComponent.h"
 #include "../Charactor/Player/ChantSystem.h"
-#include "../Magic/FireBall.h"
+#include "../Magic/GenericMagic.h"
+#include "../Magic/MagicData.h"
+#include "../Magic/SystemMagic.h"
 #include "../../Manager/InputManager.h"
 #include "../../Manager/SceneManager.h"
 #include "../../Manager/Camera.h"
@@ -95,6 +98,7 @@ void PlayerControlComponent::ChangeStateChant(void)
 		}
 	}
 
+	chantSystem_->SetHintText("【Enter/左ｸﾘｯｸ】発動 / 【Tab】取消\n攻撃: fire ball 等 / 再起: retry / 帰還: title");
 	chantSystem_->Start();
 }
 
@@ -110,11 +114,9 @@ void PlayerControlComponent::UpdatePlay(void)
 		physics->SetGravityEnabled(true);
 	}
 
-	// ★ 1. まずプレイヤーの向きをカメラの水平向き（マウス回転）と完全に一致させる！
 	Rotate();
 	owner_->transform_.quaRot = playerRotY_;
 
-	// ★ 2. その向きを基準にして移動・ジャンプ・攻撃を行う
 	ProcessMove();
 	ProcessJump();
 	ProcessAttack();
@@ -125,7 +127,6 @@ void PlayerControlComponent::UpdateChant(void)
 {
 	if (!owner_) return;
 
-	// ★ 詠唱中もマウスを動かせばカメラと一緒に好きな方向へ狙いを定められる！
 	Rotate();
 	owner_->transform_.quaRot = playerRotY_;
 
@@ -140,13 +141,22 @@ void PlayerControlComponent::UpdateChant(void)
 
 	chantSystem_->Update();
 
+	// UpdateChant関数の中盤： if (chantSystem_->IsFinished()) の中を以下のように書き換えます
 	if (chantSystem_->IsFinished())
 	{
-		std::string spell = chantSystem_->GetTypedText();
+		std::string spell = chantSystem_->GetNormalizedSpell();
 
-		if (spell == "fire ball")
+		// まずシステム魔法（retry, title, exit等）かどうかチェック
+		if (SystemMagic::Execute(spell))
 		{
-			ProcessMagic();
+			chantSystem_->Cancel();
+			return;
+		}
+
+		// システム魔法でなければ、攻撃魔法としてデータベースをチェック
+		if (MagicDatabase::IsValidSpell(spell))
+		{
+			ProcessMagic(spell);
 		}
 
 		chantSystem_->Cancel();
@@ -164,7 +174,6 @@ void PlayerControlComponent::ProcessMove(void)
 	auto& ins = InputManager::GetInstance();
 	physics->movePow_ = AsoUtility::VECTOR_ZERO;
 
-	// カメラ（＝プレイヤー）の向きを基準に前後左右の移動ベクトルを合成
 	Quaternion cameraRot = mainCamera.GetQuaRotOutX();
 	VECTOR dir = AsoUtility::VECTOR_ZERO;
 
@@ -177,7 +186,6 @@ void PlayerControlComponent::ProcessMove(void)
 	{
 		dir = AsoUtility::VNormalize(dir);
 
-		// ★ 60FPS基準のデルタタイム補正（どのPCでも完全に同じ移動速度になる）
 		float dtScale = SceneManager::GetInstance().GetDeltaTime() * 60.0f;
 		bool isRun = ins.IsNew(KEY_INPUT_RSHIFT) || ins.IsNew(KEY_INPUT_LSHIFT);
 
@@ -239,38 +247,40 @@ void PlayerControlComponent::ProcessAttack(void)
 	auto& ins = InputManager::GetInstance();
 	float deltaTime = SceneManager::GetInstance().GetDeltaTime();
 
-	// 攻撃クールタイムの更新（FPS非依存：秒単位で管理）
 	if (stepRotTime_ > 0.0f)
 	{
 		stepRotTime_ -= deltaTime;
 	}
 
-	// 左クリックまたはEnterキーでクールタイム（0.3秒）ごとに魔法発射も可能
-	if ((ins.IsTrgMouseLeft() || CheckHitKey(KEY_INPUT_RETURN)) && stepRotTime_ <= 0.0f)
-	{
-		ProcessMagic();
-		stepRotTime_ = 0.3f;
-	}
+	//// ★修正：コメントアウトを外しました！ 左クリックまたはEnterで速射します
+	//if ((ins.IsTrgMouseLeft() || CheckHitKey(KEY_INPUT_RETURN)) && stepRotTime_ <= 0.0f)
+	//{
+	//	// 左クリック時は検索キー（スペースなし小文字）を渡す
+	//	ProcessMagic("fireball");
+	//	stepRotTime_ = 0.3f;
+	//}
 
-	// TABキーで「詠唱モード」へ移行！
 	if (ins.IsTrgDown(KEY_INPUT_TAB))
 	{
 		ChangeState(STATE::CHANT);
 	}
 }
 
-void PlayerControlComponent::ProcessMagic(void)
+void PlayerControlComponent::ProcessMagic(const std::string& spellName)
 {
 	if (!owner_) return;
 
-	// ★ カメラ（＝プレイヤー）が向いている正面方向へ魔法を発射！
+	if (!MagicDatabase::IsValidSpell(spellName)) return;
+
 	VECTOR forward = playerRotY_.GetForward();
 
 	Transform spawnTrans = owner_->transform_;
 	spawnTrans.pos = VAdd(spawnTrans.pos, VGet(0.0f, 80.0f, 0.0f));
 	spawnTrans.pos = VAdd(spawnTrans.pos, VScale(forward, 30.0f));
 
-	auto magic = std::make_unique<FireBall>();
+	MagicData data = MagicDatabase::GetData(spellName);
+	auto magic = std::make_unique<GenericMagic>(data);
+
 	magic->Init();
 	magic->Fire(spawnTrans, forward);
 
@@ -288,7 +298,6 @@ void PlayerControlComponent::SetGoalRotate(double rotRad)
 
 void PlayerControlComponent::Rotate(void)
 {
-	// ★ カメラのY軸回転とプレイヤーのY軸回転を常に一致させる（360度マウス連動）
 	playerRotY_ = mainCamera.GetQuaRotOutX();
 	goalQuaRot_ = playerRotY_;
 }

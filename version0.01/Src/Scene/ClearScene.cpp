@@ -1,5 +1,4 @@
-﻿// Src/Scene/ClearScene.cpp
-#include <cmath>
+﻿#include <cmath>
 #include <algorithm>
 #include <cctype>
 #include <DxLib.h>
@@ -10,6 +9,7 @@
 #include "../Manager/InputManager.h"
 #include "../Manager/Camera.h"
 #include "../Object/SkyDome.h"
+#include "../Object/Magic/SystemMagic.h"
 #include "../Object/Common/AnimationController.h"
 #include "../Object/Charactor/Player/Player.h"
 #include "../Object/Charactor/Player/ChantSystem.h"
@@ -61,7 +61,7 @@ void ClearScene::UpdateFonts(int screenH)
 
 void ClearScene::Init(void)
 {
-	// 定点カメラ（默认位置 {0, 100, -500} から原点方向を見る）
+	// 定点カメラ（デフォルト位置 {0, 100, -500} から原点方向を見る）
 	mainCamera.ChangeMode(Camera::MODE::FIXED_POINT);
 
 	// 1. 地面となる惑星を配置
@@ -90,7 +90,7 @@ void ClearScene::Init(void)
 
 	// 4. クリア画面用の詠唱システム準備
 	chantSystem_ = std::make_unique<ChantSystem>();
-	chantSystem_->SetHintText("【Enter】帰還発動 / 【Tab】閉じる （タイトルへの呪文: to title）");
+	chantSystem_->SetHintText("【Enter/左ｸﾘｯｸ】帰還発動 / 【Tab】閉じる\n帰還の呪文: title / 終了の呪文: exit");
 }
 
 void ClearScene::Update(void)
@@ -125,18 +125,13 @@ void ClearScene::Update(void)
 
 		if (chantSystem_->IsFinished())
 		{
-			std::string spell = chantSystem_->GetTypedText();
-			std::string normalized = "";
-			for (char c : spell)
-			{
-				if (c != ' ') normalized += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-			}
+			// スペース削除・小文字化を1行で取得！
+			std::string spell = chantSystem_->GetNormalizedSpell();
 
-			// "to title", "totitle", "title" のいずれでもタイトルへ戻れるようにする
-			if (normalized == "totitle" || normalized == "title")
+			// ★ SystemMagic クラスに判定を丸投げする！（titleもexitもここで処理される）
+			if (SystemMagic::Execute(spell))
 			{
 				chantSystem_->Cancel();
-				SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::TITLE);
 				return;
 			}
 			else
@@ -231,12 +226,12 @@ void ClearScene::Draw(void)
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
 
 		std::string guide1 = "Press [ SPACE ] to Return to Title";
-		std::string guide2 = "Press [ TAB ] to Chant \"to title\"";
+		std::string guide2 = "Press [ TAB ] to Chant \"title\"";
 
 		int g1W = GetDrawStringWidthToHandle(guide1.c_str(), static_cast<int>(guide1.length()), fontGuide_);
 		int g2W = GetDrawStringWidthToHandle(guide2.c_str(), static_cast<int>(guide2.length()), fontGuide_);
 
-		int guideY = static_cast<int>(screenH * 0.78f);
+		int guideY = static_cast<int>(screenH * 0.80f);
 		DrawStringToHandle(cx - (g1W / 2), guideY, guide1.c_str(), GetColor(255, 255, 180), fontGuide_, GetColor(40, 30, 0));
 		DrawStringToHandle(cx - (g2W / 2), guideY + static_cast<int>(screenH * 0.06f), guide2.c_str(), GetColor(0, 255, 255), fontGuide_, GetColor(0, 40, 60));
 
@@ -246,7 +241,7 @@ void ClearScene::Draw(void)
 	{
 		if (isError_)
 		{
-			std::string errText = "呪文が違います！ \"to title\" と詠唱してください";
+			std::string errText = "呪文が違います！ 正しい呪文を詠唱してください";
 			int errW = GetDrawStringWidthToHandle(errText.c_str(), static_cast<int>(errText.length()), fontSub_);
 			DrawStringToHandle(cx - (errW / 2), static_cast<int>(screenH * 0.72f),
 				errText.c_str(), GetColor(255, 80, 80), fontSub_, GetColor(40, 0, 0));

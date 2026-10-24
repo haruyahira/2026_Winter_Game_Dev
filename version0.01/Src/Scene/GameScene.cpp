@@ -169,27 +169,24 @@ void GameScene::Draw(void)
 	int screenW = Application::GetScreenWidth();
 	int screenH = Application::GetScreenHeight();
 
-	// 画面中央に照準（クロスヘア）を描画
+	// 画面中央
 	int cx = screenW / 2;
 	int cy = screenH / 2;
-	DrawCircle(cx, cy, 4, GetColor(0, 255, 255), FALSE);
-	DrawLine(cx - 10, cy, cx - 4, cy, GetColor(0, 255, 255));
-	DrawLine(cx + 4, cy, cx + 10, cy, GetColor(0, 255, 255));
-	DrawLine(cx, cy - 10, cx, cy - 4, GetColor(0, 255, 255));
-	DrawLine(cx, cy + 4, cx, cy + 10, GetColor(0, 255, 255));
-
+	
 	// 操作ヘルプ
 	int helpX = screenW - 260;
-	DrawFormatString(helpX, 20, 0x000000, "移動  ：WASD");
-	DrawFormatString(helpX, 45, 0x000000, "視点回転：マウス移動");
-	DrawFormatString(helpX, 70, 0x000000, "ダッシュ：Shift");
-	DrawFormatString(helpX, 95, 0x000000, "ジャンプ：SPACE");
-	DrawFormatString(helpX, 120, 0x000000, "魔法詠唱：TAB / 速射：左クリック");
+	DrawFormatString(helpX, 20, 0xFFFFFF, "移動  ：WASD");
+	DrawFormatString(helpX, 45, 0xFFFFFF, "視点回転：マウス移動");
+	DrawFormatString(helpX, 70, 0xFFFFFF, "ダッシュ：Shift");
+	DrawFormatString(helpX, 95, 0xFFFFFF, "ジャンプ：SPACE");
+	DrawFormatString(helpX, 120, 0xFFFFFF, "魔法詠唱：TAB");
 
 	// 左上ステータス
-	DrawFormatString(20, 20, 0xffffff, "魔法の数：%d", (int)dynamicActors_.size());
 	auto playerPos = player_->GetTransform().pos;
+
+#ifdef _DEBUG
 	DrawFormatString(20, 45, 0xffffff, "座標: X:%.1f Y:%.1f Z:%.1f", playerPos.x, playerPos.y, playerPos.z);
+#endif
 
 	// 敵撃破後のクリア演出メッセージ
 	if (clearTimer_ > 0.0f)

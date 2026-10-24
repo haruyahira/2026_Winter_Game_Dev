@@ -31,10 +31,13 @@ void BossEnemy::InitDetail(void)
 
 	// 当たり判定(上端Y, 下端Y, 半径)とデバッグカプセル表示(青)
 	SetupCapsule(CAPSULE_TOP, CAPSULE_BOTTOM, CAPSULE_RADIUS);
+#ifdef _DEBUG
 	if (capsuleComp_)
 	{
 		capsuleComp_->SetDrawDebug(true, GetColor(0, 0, 255));
 	}
+#endif
+
 
 	// アニメーションの準備
 	InitAnimation();

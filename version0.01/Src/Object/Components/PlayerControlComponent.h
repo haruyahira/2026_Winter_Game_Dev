@@ -57,7 +57,7 @@ private:
 	void ProcessJump(void);
 	void ProcessDefense(void);
 	void ProcessAttack(void);
-	void ProcessMagic(void);
+	void ProcessMagic(const std::string& spellName);
 
 	void SetGoalRotate(double rotRad);
 	void Rotate(void);

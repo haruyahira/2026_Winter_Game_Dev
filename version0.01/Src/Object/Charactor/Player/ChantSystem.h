@@ -25,7 +25,10 @@ public:
 	// 打ち込んだ呪文（文字列）を取得
 	std::string GetTypedText(void) const { return typedText_; }
 
-	// ★ シーンに合わせてヒントテキストを変更する
+	// スペースを削除し、全て小文字に変換した「判定用の文字列」を取得する
+	std::string GetNormalizedSpell(void) const;
+
+	// シーンに合わせてヒントテキストを変更する
 	void SetHintText(const std::string& hint) { hintText_ = hint; }
 
 private:
