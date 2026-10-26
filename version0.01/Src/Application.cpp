@@ -57,6 +57,9 @@ void Application::Init(void)
 
 	// DxLib‚Ì‰Šú‰»
 	SetUseDirect3DVersion(DX_DIRECT3D_11);
+
+	//SetAlwaysRunFlag(TRUE);
+
 	isInitFail_ = false;
 	if (DxLib_Init() == -1)
 	{

@@ -40,15 +40,21 @@ void PhysicsComponent::CalcGravityPow(void)
 	VECTOR dirGravity = AsoUtility::DIR_D;
 	float gravityPow = Planet::DEFAULT_GRAVITY_POW;
 
-	// ★ 60FPS基準のデルタタイム補正
-	float dtScale = SceneManager::GetInstance().GetDeltaTime() * 60.0f;
+	float deltaTime = SceneManager::GetInstance().GetDeltaTime();
+	if (deltaTime > 0.025f) {
+		deltaTime = 0.025f;
+	}
+	float dtScale = deltaTime * 60.0f;
 	VECTOR gravity = VScale(dirGravity, gravityPow * dtScale);
 
+	// ジャンプ力（落下速度）に重力を足して加速させる
 	jumpPow_ = VAdd(jumpPow_, gravity);
+
 	float dot = VDot(dirGravity, jumpPow_);
-	if (dot >= 0.0f)
+	// 速度のリセットをやめ、「一定速度以上は速くならない（終端速度）」ようにする
+	if (dot > 60.0f) // 30.0fは最大落下速度です。ゲームに合わせて調整してください
 	{
-		jumpPow_ = gravity;
+		jumpPow_ = VScale(dirGravity, 60.0f);
 	}
 }
 
@@ -102,7 +108,12 @@ void PhysicsComponent::CollisionGravity(void)
 	auto colliderComp = owner_->GetComponent<CapsuleColliderComponent>();
 	if (!colliderComp) return;
 
-	float dtScale = SceneManager::GetInstance().GetDeltaTime() * 60.0f;
+	// ★ 修正：ここでも同じように上限を設ける
+	float deltaTime = SceneManager::GetInstance().GetDeltaTime();
+	if (deltaTime > 0.025f) {
+		deltaTime = 0.025f;
+	}
+	float dtScale = deltaTime * 60.0f;
 	movedPos_ = VAdd(movedPos_, VScale(jumpPow_, dtScale));
 
 	VECTOR dirGravity = AsoUtility::DIR_D;
@@ -118,7 +129,7 @@ void PhysicsComponent::CollisionGravity(void)
 	{
 		if (c.expired()) continue;
 		auto hit = MV1CollCheck_Line(c.lock()->modelId_, -1, gravHitPosUp_, gravHitPosDown_);
-		if (hit.HitFlag > 0 && VDot(dirGravity, jumpPow_) > 0.9f)
+		if (hit.HitFlag > 0 && VDot(dirGravity, jumpPow_) > 0.0f)
 		{
 			movedPos_ = VAdd(hit.HitPosition, VScale(dirUpGravity, 2.0f));
 			jumpPow_ = AsoUtility::VECTOR_ZERO;

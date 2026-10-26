@@ -24,7 +24,7 @@ void ProjectileComponent::Update(void)
 {
 	if (!owner_) return;
 
-	// ★ デルタタイムを用いて弾速と寿命を完全にFPS非依存化
+	// デルタタイムを用いて弾速と寿命を完全にFPS非依存化
 	float deltaTime = SceneManager::GetInstance().GetDeltaTime();
 	float dtScale = deltaTime * 60.0f;
 

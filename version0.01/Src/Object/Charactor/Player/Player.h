@@ -25,7 +25,7 @@ public:
 	static constexpr float TIME_JUMP_IN = 0.5f;
 
 	// モデルの基本設定
-	static constexpr VECTOR INIT_POSITION = { 0.0f, 0.0f, 0.0f };  // プレイヤー初期座標
+	static constexpr VECTOR INIT_POSITION = { 0.0f, 26.0f, 0.0f };  // プレイヤー初期座標
 	static constexpr VECTOR INIT_AXIS = { 0.0f, 180.0f, 0.0f };  // プレイヤー初期軸
 	static constexpr float INIT_SCALE = 1.0f;  // プレイヤー初期スケール
 
