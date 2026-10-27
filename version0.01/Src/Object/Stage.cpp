@@ -1,6 +1,7 @@
 #include <vector>
 #include <map>
 #include <DxLib.h>
+#include <EffekseerForDXLib.h>
 #include "../Utility/AsoUtility.h"
 #include "../Manager/SceneManager.h"
 #include "../Manager/ResourceManager.h"
@@ -27,6 +28,9 @@ Stage::~Stage(void)
 	// 惑星
 	planets_.clear();
 
+	StopEffekseer3DEffect(flamePlayingHandle_);
+	DeleteEffekseerEffect(flameEffectRes_);
+
 	// 骸骨オブジェクト
 	//skulls_.clear();
 }
@@ -38,10 +42,26 @@ void Stage::Init(void)
 	//MakeEnvironment();
 	
 	step_ = -1.0f;
+
+	// エフェクトファイルの読み込み
+	flameEffectRes_ = LoadEffekseerEffect("Data/Effect/BlueFlame/BlueFlame.efkefc", 100.0f);
+
+	// エラーチェックを追加：読み込みに成功した場合のみ再生する
+	if (flameEffectRes_ != -1)
+	{
+		// エフェクトの再生を開始
+		flamePlayingHandle_ = PlayEffekseer3DEffect(flameEffectRes_);
+
+		// たいまつの位置（X, Y, Z）にエフェクトを移動させる
+		SetPosPlayingEffekseer3DEffect(flamePlayingHandle_, 0.0f, 50.0f, 0.0f);
+	}
+	
 }
 
 void Stage::Update(void)
 {
+	UpdateEffekseer3D();
+
 	// 惑星
 	for (const auto& s : planets_)
 	{
@@ -59,9 +79,11 @@ void Stage::Draw(void)
 {
 	// 惑星
 	for (const auto& s : planets_)
-	{
+	{  
 		s.second->Draw();
 	}
+
+	DrawEffekseer3D();
 
 	//// 骸骨オブジェクト
 	//for (const auto& s : skulls_)

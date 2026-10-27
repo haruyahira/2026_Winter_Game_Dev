@@ -13,7 +13,6 @@ class BossEnemy;
 
 class GameScene : public SceneBase
 {
-
 public:
 
 	// コンストラクタ

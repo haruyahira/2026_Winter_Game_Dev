@@ -151,7 +151,7 @@ void Camera::SyncFollow(void)
 {
 	if (!followTransform_) return;
 
-	// 同期先の位置
+	// プレイヤーの位置（足元やモデルの中心点）
 	VECTOR pos = followTransform_->pos;
 
 	// 正面から設定されたY軸分、回転させる
@@ -160,15 +160,23 @@ void Camera::SyncFollow(void)
 	// 正面から設定されたX軸分、回転させる
 	rot_ = rotOutX_.Mult(Quaternion::AngleAxis(angles_.x, AsoUtility::AXIS_X));
 
-	VECTOR localPos;
+	// ---------------------------------------------------
+	// ① カメラ位置の決定（一人称視点）
+	// ---------------------------------------------------
+	// プレイヤーの基準点から「目の高さ」までカメラを持ち上げます。
+	// ※ 15.0f の部分はご自身のゲームのキャラクタースケールに合わせて調整してください。
+	VECTOR eyeOffset = VGet(0.0f, 100.0f, 0.0f);
+	pos_ = VAdd(pos, eyeOffset);
 
-	// 注視点
-	localPos = rot_.PosAxis(LOCAL_F2T_POS);
-	targetPos_ = VAdd(pos, localPos);
+	// ---------------------------------------------------
+	// ② 注視点の決定（向いている方向）
+	// ---------------------------------------------------
+	// Z軸プラス方向（前方）ベクトルを、マウスで計算した回転（rot_）で回します。
+	VECTOR forwardVec = VGet(0.0f, 0.0f, 100.0f); // 100.0f 先を注視点とする
+	VECTOR localTarget = rot_.PosAxis(forwardVec);
 
-	// カメラ位置
-	localPos = rot_.PosAxis(LOCAL_F2C_POS);
-	pos_ = VAdd(pos, localPos);
+	// カメラの位置（pos_）に、回転させた前方ベクトルを足して注視点にします。
+	targetPos_ = VAdd(pos_, localTarget);
 
 	// カメラの上方向
 	cameraUp_ = AsoUtility::DIR_U;

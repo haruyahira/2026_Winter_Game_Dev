@@ -69,4 +69,6 @@ private:
 	// 環境オブジェクト
 	void MakeEnvironment(void);
 
+	int flameEffectRes_;      // エフェクトの元データ（リソースハンドル）
+	int flamePlayingHandle_;  // 現在再生中のエフェクト（再生ハンドル）
 };
