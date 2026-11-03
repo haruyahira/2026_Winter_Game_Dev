@@ -5,6 +5,7 @@
 #include "../Utility/AsoUtility.h"
 #include "../Manager/SceneManager.h"
 #include "../Manager/ResourceManager.h"
+#include "../Manager/LightManager.h"
 #include "Charactor/Player/Player.h"
 #include "Charactor/Enemy/BossEnemy.h"
 #include "Common/Collider.h"
@@ -17,18 +18,27 @@
 Stage::Stage(Player& player, Destroyer& destroyer, BossEnemy& centaur)
 	:
 	resMng_(ResourceManager::GetInstance()),
-	player_(player), destroyer_(destroyer), centaur_(centaur)
+	player_(player), destroyer_(destroyer), bossEnemy_(centaur)
 {
 	activeName_ = NAME::MAIN_PLANET;
 	step_ = 0.0f;
+
+	lightManager_ = new LightManager();
 }
 
 Stage::~Stage(void)
 {
+	delete lightManager_;
+
 	// 惑星
 	planets_.clear();
 
-	StopEffekseer3DEffect(flamePlayingHandle_);
+	// 修正：保存した全てのエフェクトハンドルを停止する
+	for (int handle : flamePlayingHandles_)
+	{
+		StopEffekseer3DEffect(handle);
+	}
+	flamePlayingHandles_.clear();
 	DeleteEffekseerEffect(flameEffectRes_);
 
 	// 骸骨オブジェクト
@@ -38,24 +48,53 @@ Stage::~Stage(void)
 void Stage::Init(void)
 {
 	MakeMainStage();
-	
-	//MakeEnvironment();
-	
 	step_ = -1.0f;
 
-	// エフェクトファイルの読み込み
-	flameEffectRes_ = LoadEffekseerEffect("Data/Effect/BlueFlame/BlueFlame.efkefc", 100.0f);
+	// 環境光と標準ライトをゼロに
+	SetGlobalAmbientLight(GetColorF(0.0f, 0.0f, 0.0f, 1.0f));
+	SetLightDifColor(GetColorF(0.0f, 0.0f, 0.0f, 1.0f));
+	SetLightSpcColor(GetColorF(0.0f, 0.0f, 0.0f, 1.0f));
+	SetLightAmbColor(GetColorF(0.0f, 0.0f, 0.0f, 1.0f));
 
-	// エラーチェックを追加：読み込みに成功した場合のみ再生する
-	if (flameEffectRes_ != -1)
+	flameEffectRes_ = LoadEffekseerEffect("Data/Effect/BlueFlame/BlueFlame.efkefc", 168.0f);
+
+	// ライトマネージャーの初期化
+	lightManager_->Clear();
+
+	if (flameEffectRes_ != -1 && planets_.find(NAME::MAIN_PLANET) != planets_.end())
 	{
-		// エフェクトの再生を開始
-		flamePlayingHandle_ = PlayEffekseer3DEffect(flameEffectRes_);
+		int modelHandle = planets_[NAME::MAIN_PLANET]->GetTransform().modelId;
 
-		// たいまつの位置（X, Y, Z）にエフェクトを移動させる
-		SetPosPlayingEffekseer3DEffect(flamePlayingHandle_, 0.0f, 50.0f, 0.0f);
+		for (int i = 0; i <= 31; ++i)
+		{
+			char frameName[64];
+			if (i == 0) sprintf_s(frameName, "Wall_Torch");
+			else        sprintf_s(frameName, "Wall_Torch.%03d", i);
+
+			int frameIndex = MV1SearchFrame(modelHandle, frameName);
+			if (frameIndex != -1)
+			{
+				VECTOR torchPos = MV1GetFramePosition(modelHandle, frameIndex);
+				if (torchPos.x > 0.0f) torchPos.x -= 200.0f;
+				else                   torchPos.x += 200.0f;
+				torchPos.y += 140.0f;
+
+				int handle = PlayEffekseer3DEffect(flameEffectRes_);
+				SetPosPlayingEffekseer3DEffect(handle, torchPos.x, torchPos.y, torchPos.z);
+				flamePlayingHandles_.push_back(handle);
+
+				// 修正後（距離と光の強さを上げる）
+				lightManager_->AddPointLight(
+					torchPos,
+					4100.0f,                            // ★床の中央まで届くように 6000 に広げる
+					GetColorF(0.0f, 0.8f, 2.0f, 1.0f)   // ★ライトが重なっても白飛びしない強さに調整
+				);
+			}
+		}
+
+		// GPUに転送（動くライトがある場合は Update() 内で毎フレーム呼んでください）
+		lightManager_->UpdateBuffer();
 	}
-	
 }
 
 void Stage::Update(void)
@@ -67,16 +106,12 @@ void Stage::Update(void)
 	{
 		s.second->Update();
 	}
-
-	//// 骸骨オブジェクト
-	//for (const auto& s : skulls_)
-	//{
-	//	s->Update();
-	//}
 }
 
 void Stage::Draw(void)
 {
+	lightManager_->SetReservePS(5);
+
 	// 惑星
 	for (const auto& s : planets_)
 	{  
@@ -84,12 +119,6 @@ void Stage::Draw(void)
 	}
 
 	DrawEffekseer3D();
-
-	//// 骸骨オブジェクト
-	//for (const auto& s : skulls_)
-	//{
-	//	s->Draw();
-	//}
 }
 
 void Stage::ChangeStage(NAME type)
@@ -102,10 +131,8 @@ void Stage::ChangeStage(NAME type)
 	// ステージの当たり判定を設定
 	player_.ClearCollider();
 	player_.AddCollider(activePlanet_.lock()->GetTransform().collider);
-	/*destroyer_.ClearCollider();
-	destroyer_.AddCollider(activePlanet_.lock()->GetTransform().collider);*/
-	centaur_.ClearCollider();
-	centaur_.AddCollider(activePlanet_.lock()->GetTransform().collider);
+	bossEnemy_.ClearCollider();
+	bossEnemy_.AddCollider(activePlanet_.lock()->GetTransform().collider);
 
 	step_ = TIME_STAGE_CHANGE;
 }
@@ -127,14 +154,15 @@ void Stage::MakeMainStage(void)
 	Transform planetTrans;
 	planetTrans.SetModel(
 		resMng_.LoadModelDuplicate(ResourceManager::SRC::MAIN_PLANET));
-	planetTrans.scl = AsoUtility::VECTOR_ONE;
+	/*planetTrans.scl = { 5.0f, 5.0f, 5.0f };*/
+	planetTrans.scl = { 1.0f, 1.0f, 1.0f };
 	planetTrans.quaRot = Quaternion();
 	planetTrans.pos = { 0.0f, 0.0f, 0.0f };
 
+	planetTrans.Update();
+
 	// 当たり判定(コライダ)作成
 	planetTrans.MakeCollider(Collider::TYPE::STAGE);
-
-	planetTrans.Update();
 
 	NAME name = NAME::MAIN_PLANET;
 	std::shared_ptr<Planet> planet =

@@ -87,6 +87,19 @@ public:
 	// 対象方向の回転
 	void ToAngleAxis(float* angle, VECTOR* axis);
 
+	// 回転行列を取得
+	MATRIX GetMatrix(void) const;
+
+	// 拡縮・回転・平行移動を含む行列を取得
+	MATRIX GetMatrix(const VECTOR& position, const VECTOR& scale) const;
+
+	// static版
+	static MATRIX GetMatrix(
+		const VECTOR& position,
+		const Quaternion& rotation,
+		const VECTOR& scale
+	);
+
 private:
 
 	// 基本ベクトルを取得

@@ -18,6 +18,7 @@ Camera::Camera(void)
 	targetPos_ = AsoUtility::VECTOR_ZERO;
 	followTransform_ = nullptr;
 	isMouseInitialized_ = false;
+	isActive_ = true; // ★追加：最初はONにしておく
 }
 
 Camera::~Camera(void)
@@ -31,12 +32,21 @@ void Camera::Init(void)
 
 void Camera::Update(void)
 {
-	// ★ Updateのタイミングでカメラ回転と同期を行うことで、
-	// プレイヤーとカメラの向きが1フレームのズレもなく完全に一致します！
 	if (mode_ == MODE::FOLLOW && followTransform_ != nullptr)
 	{
-		ProcessRot();
+		// ★ isActive_ が true の時だけマウスで視点移動できる
+		if (isActive_) ProcessRot();
+
+		// ★ 追従処理は常に実行！（これでフリーカメラ中もプレイヤーが正常に動ける）
 		SyncFollow();
+	}
+	else if (mode_ == MODE::FREE)
+	{
+		if (isActive_) // ★ フリーカメラもアクティブな時だけ動く
+		{
+			ProcessRot();
+			ProcessFreeMove();
+		}
 	}
 }
 
@@ -53,6 +63,9 @@ void Camera::SetBeforeDraw(void)
 	case Camera::MODE::FOLLOW:
 		SetBeforeDrawFollow();
 		break;
+	case Camera::MODE::FREE:          // ★ 追加
+		SetBeforeDrawFree();          // ★ 追加
+		break;                        // ★ 追加
 	}
 
 	// カメラの設定(位置と注視点による制御)
@@ -125,7 +138,16 @@ void Camera::ChangeMode(MODE mode)
 			SyncFollow();
 		}
 		break;
+	case Camera::MODE::FREE:
+		// フリーカメラに切り替わった瞬間に一回だけ向きを更新しておく
+		ProcessFreeMove();
+		break;
 	}
+}
+
+Camera::MODE Camera::GetMode(void) const
+{
+	return mode_;
 }
 
 void Camera::SetDefault(void)
@@ -160,17 +182,13 @@ void Camera::SyncFollow(void)
 	// 正面から設定されたX軸分、回転させる
 	rot_ = rotOutX_.Mult(Quaternion::AngleAxis(angles_.x, AsoUtility::AXIS_X));
 
-	// ---------------------------------------------------
-	// ① カメラ位置の決定（一人称視点）
-	// ---------------------------------------------------
+	// カメラ位置の決定（一人称視点）
 	// プレイヤーの基準点から「目の高さ」までカメラを持ち上げます。
 	// ※ 15.0f の部分はご自身のゲームのキャラクタースケールに合わせて調整してください。
-	VECTOR eyeOffset = VGet(0.0f, 100.0f, 0.0f);
+	VECTOR eyeOffset = VGet(0.0f, 150.0f, 0.0f);
 	pos_ = VAdd(pos, eyeOffset);
 
-	// ---------------------------------------------------
-	// ② 注視点の決定（向いている方向）
-	// ---------------------------------------------------
+	// 注視点の決定（向いている方向）
 	// Z軸プラス方向（前方）ベクトルを、マウスで計算した回転（rot_）で回します。
 	VECTOR forwardVec = VGet(0.0f, 0.0f, 100.0f); // 100.0f 先を注視点とする
 	VECTOR localTarget = rot_.PosAxis(forwardVec);
@@ -216,14 +234,6 @@ void Camera::ProcessRot(void)
 	angles_.y += static_cast<float>(deltaX) * MOUSE_SENSITIVITY;
 	angles_.x += static_cast<float>(deltaY) * MOUSE_SENSITIVITY;
 
-	// 矢印キーでも補助的に回せるようにしておく（FPS非依存）
-	auto& ins = InputManager::GetInstance();
-	float dtScale = SceneManager::GetInstance().GetDeltaTime() * 60.0f;
-	if (ins.IsNew(KEY_INPUT_RIGHT)) { angles_.y += AsoUtility::Deg2RadF(1.5f * dtScale); }
-	if (ins.IsNew(KEY_INPUT_LEFT)) { angles_.y += AsoUtility::Deg2RadF(-1.5f * dtScale); }
-	if (ins.IsNew(KEY_INPUT_UP)) { angles_.x += AsoUtility::Deg2RadF(1.5f * dtScale); }
-	if (ins.IsNew(KEY_INPUT_DOWN)) { angles_.x += AsoUtility::Deg2RadF(-1.5f * dtScale); }
-
 	// 上下の角度制限
 	if (angles_.x > LIMIT_X_UP_RAD)
 	{
@@ -233,6 +243,49 @@ void Camera::ProcessRot(void)
 	{
 		angles_.x = -LIMIT_X_DW_RAD;
 	}
+}
+
+void Camera::ProcessFreeMove(void)
+{
+	// 1. 現在のカメラの回転（rot_）を更新
+	rotOutX_ = Quaternion::AngleAxis(angles_.y, AsoUtility::AXIS_Y);
+	rot_ = rotOutX_.Mult(Quaternion::AngleAxis(angles_.x, AsoUtility::AXIS_X));
+
+	// 2. カメラから見た「前」「右」「上」のベクトルを取得
+	VECTOR forward = rot_.PosAxis(VGet(0.0f, 0.0f, 1.0f));
+	VECTOR right = rot_.PosAxis(VGet(1.0f, 0.0f, 0.0f));
+	VECTOR up = rot_.PosAxis(VGet(0.0f, 1.0f, 0.0f));
+
+	// 3. 入力による移動方向の計算
+	auto& ins = InputManager::GetInstance();
+	VECTOR moveDir = AsoUtility::VECTOR_ZERO;
+
+	if (ins.IsNew(KEY_INPUT_W)) moveDir = VAdd(moveDir, forward);
+	if (ins.IsNew(KEY_INPUT_S)) moveDir = VAdd(moveDir, VScale(forward, -1.0f));
+	if (ins.IsNew(KEY_INPUT_D)) moveDir = VAdd(moveDir, right);
+	if (ins.IsNew(KEY_INPUT_A)) moveDir = VAdd(moveDir, VScale(right, -1.0f));
+	if (ins.IsNew(KEY_INPUT_E)) moveDir = VAdd(moveDir, AsoUtility::DIR_U); // Eで上昇
+	if (ins.IsNew(KEY_INPUT_Q)) moveDir = VAdd(moveDir, VScale(AsoUtility::DIR_U, -1.0f)); // Qで下降
+
+	// 4. カメラの座標を更新
+	if (!AsoUtility::EqualsVZero(moveDir))
+	{
+		moveDir = VNorm(moveDir);
+
+		// 基本スピードと、Shiftキー押しっぱなしによるダッシュ
+		float speed = 15.0f;
+		if (ins.IsNew(KEY_INPUT_LSHIFT) || ins.IsNew(KEY_INPUT_RSHIFT))
+		{
+			speed *= 4.0f; // ダッシュ時は4倍速
+		}
+
+		float dtScale = SceneManager::GetInstance().GetDeltaTime() * 60.0f;
+		pos_ = VAdd(pos_, VScale(moveDir, speed * dtScale));
+	}
+
+	// 5. 注視点（カメラの少し前方の位置）を更新
+	targetPos_ = VAdd(pos_, VScale(forward, 100.0f));
+	cameraUp_ = AsoUtility::DIR_U;
 }
 
 void Camera::SetBeforeDrawFixedPoint(void)
@@ -247,4 +300,9 @@ void Camera::SetBeforeDrawFollow(void)
 
 void Camera::SetBeforeDrawSelfShot(void)
 {
+}
+
+void Camera::SetBeforeDrawFree(void)
+{
+	ProcessFreeMove();
 }

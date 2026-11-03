@@ -48,7 +48,9 @@ void InputManager::Init(void)
 		KEY_INPUT_TAB,
 
 		// 数字
-		KEY_INPUT_1
+		KEY_INPUT_1,
+		KEY_INPUT_3
+		
 	};
 
 	// インスタンス取得を1回で済ませる

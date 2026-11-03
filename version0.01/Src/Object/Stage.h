@@ -3,11 +3,13 @@
 #include <map>
 #include "Common/Transform.h"
 class ResourceManager;
+class LightManager;
 class Planet;
 class Skull;
 class Player;
 class Destroyer;
 class BossEnemy;
+
 
 class Stage
 {
@@ -43,10 +45,11 @@ private:
 
 	// シングルトン参照
 	ResourceManager& resMng_;
+	LightManager* lightManager_;
 
 	Player& player_;
 	Destroyer& destroyer_;
-	BossEnemy& centaur_;
+	BossEnemy& bossEnemy_;
 
 	// ステージアクティブになっている惑星の情報
 	NAME activeName_;
@@ -70,5 +73,6 @@ private:
 	void MakeEnvironment(void);
 
 	int flameEffectRes_;      // エフェクトの元データ（リソースハンドル）
-	int flamePlayingHandle_;  // 現在再生中のエフェクト（再生ハンドル）
+	std::vector<int> flamePlayingHandles_;  // 現在再生中のエフェクト（再生ハンドル）
+	std::vector<int> pointLightHandles_;
 };

@@ -18,7 +18,7 @@ public:
 	static constexpr float CAMERA_NEAR = 50.0f;
 
 	// カメラクリップ：FAR
-	static constexpr float CAMERA_FAR = 30000.0f;
+	static constexpr float CAMERA_FAR = 80000.0f;
 
 	// カメラの初期座標
 	static constexpr VECTOR DEFAULT_CAMERA_POS = { 0.0f, 100.0f, -500.0f };
@@ -39,7 +39,8 @@ public:
 		NONE,
 		FIXED_POINT,
 		FOLLOW,
-		SELF_SHOT
+		SELF_SHOT,
+		FREE,
 	};
 
 	Camera(void);
@@ -67,8 +68,17 @@ public:
 	// カメラモードの変更
 	void ChangeMode(MODE mode);
 
+	MODE GetMode(void) const;
+
 	// 追従対象の設定
 	void SetFollow(const Transform* follow);
+
+	void SetActive(bool active) { isActive_ = active; }
+	bool IsActive() const { return isActive_; }
+	void SetPos(VECTOR pos) { pos_ = pos; }
+	void SetAngles(VECTOR angles) { angles_ = angles; }
+
+	bool isActive_;
 
 private:
 
@@ -107,9 +117,14 @@ private:
 
 	// カメラ操作（マウス＆キー対応）
 	void ProcessRot(void);
+	void ProcessFreeMove(void);
 
 	// モード別更新ステップ
 	void SetBeforeDrawFixedPoint(void);
 	void SetBeforeDrawFollow(void);
 	void SetBeforeDrawSelfShot(void);
+	void  SetBeforeDrawFree(void);
+
+	
+	
 };

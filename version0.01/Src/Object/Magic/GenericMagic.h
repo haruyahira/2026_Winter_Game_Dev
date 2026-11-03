@@ -15,17 +15,24 @@ public:
 	GenericMagic(const MagicData& data);
 	virtual ~GenericMagic(void);
 
-	void Init(void) override;
-	void Update(void) override;
-	void Draw(void) override;
-	void Fire(const Transform& spawnTransform, VECTOR dir) override;
+	virtual void Init(void) override;
+	virtual void Update(void) override;
+	virtual void Draw(void) override;
+	virtual void Fire(const Transform& spawnTransform, VECTOR dir) override;
 	void OnHit(void) override;
 	bool CanHit(void) const override;
 	bool isDestroy(void) override;
 
+	
+
+protected:
+
+	bool isExploding_;
+	
+
 private:
 	MagicData data_;
+	
 	std::shared_ptr<ProjectileComponent> projectileComp_;
-	bool isExploding_;
 	float explodeTimer_;
 };

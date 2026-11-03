@@ -195,7 +195,16 @@
     <ClCompile Include="Src\Object\Magic\GenericMagic.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Object\Magic\SystemMagic.cpp">
+    <ClCompile Include="Src\Common\FpsController.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Manager\LightManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Object\Components\BeamEffectComponent.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Object\Magic\ZoltraakMagic.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -347,6 +356,18 @@
     <ClInclude Include="Src\Object\Magic\SystemMagic.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Common\FpsController.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Manager\LightManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Object\Components\BeamEffectComponent.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Object\Magic\ZoltraakMagic.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\Shader\Common\VertexToPixelHeader.hlsli" />
@@ -366,5 +387,9 @@
     <FxCompile Include="Src\Shader\Model\ToonModelVS2.hlsl" />
     <FxCompile Include="Src\Shader\Model\SkullModelPS4.hlsl" />
     <FxCompile Include="Src\Shader\Model\SkullModelVS4.hlsl" />
+    <FxCompile Include="Src\Shader\Model\PointLightPS.hlsl" />
+    <FxCompile Include="Src\Shader\MagicCirclePS.hlsl" />
+    <FxCompile Include="Src\Shader\MagicCircleVS.hlsl" />
+    <FxCompile Include="Src\Shader\ZoltraakBeamPS.hlsl" />
   </ItemGroup>
 </Project>

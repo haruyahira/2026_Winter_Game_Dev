@@ -43,7 +43,7 @@ private:
 	std::unique_ptr<Destroyer> destroyer_;
 
 	// ケンタウロス
-	std::unique_ptr<BossEnemy> centaur_;
+	std::unique_ptr<BossEnemy> bossEnemy_;
 
 	// クリア遷移用タイマー
 	float clearTimer_;

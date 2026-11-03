@@ -20,37 +20,37 @@ Planet::~Planet(void)
 
 void Planet::Init(void)
 {
-
 	// モデル描画用
 	material_ = std::make_unique<ModelMaterial>(
 		"StdModelVS4.cso", 2,
-		"StdModelPS4.cso", 3
+		"PointLightPS.cso", 4
 		);
 
 	// 拡散光
-	material_->AddConstBufPS({ 1.0f, 1.0f, 1.0f, 1.0f });
+	material_->AddConstBufPS({ 0.0f, 0.0f, 0.0f, 1.0f });
 
 	// 環境光
-	material_->AddConstBufPS({ 0.2f, 0.2f, 0.2f, 1.0f });
-	
+	material_->AddConstBufPS({ 0.02f, 0.02f, 0.05f, 1.0f });
+
+	// ライトの方向（光がゼロなので何でもいいですが一応送ります）
+	VECTOR worldLightDirection = GetLightDirection();
+	material_->AddConstBufPS(
+		{ worldLightDirection.x, worldLightDirection.y, worldLightDirection.z, 0.0f });
+
+	material_->AddConstBufPS({ 0.0f, 0.0f, 0.0f, 0.0f });
+
 	// 頂点①：カメラ座標
 	auto& camera = SceneManager::GetInstance().GetCamera();
 	auto cPos = camera.GetPos();
 	material_->AddConstBufVS({ cPos.x, cPos.y, cPos.z, 0.0f });
 
-	// 頂点②：フォグ開始・終了距離
+	// 頂点②：フォグ開始・終了距離（暗闇に溶け込ませるなら有効）
 	float fogStart;
 	float fogEnd;
 	GetFogStartEnd(&fogStart, &fogEnd);
 	material_->AddConstBufVS({ fogStart, fogEnd, 0.0f, 0.0f });
-	
-	// ライトの方向
-	VECTOR worldLightDirection = GetLightDirection();
-	material_->AddConstBufPS(
-		{ worldLightDirection.x, worldLightDirection.y, worldLightDirection.z, 0.0f });
 
 	renderer_ = std::make_unique<ModelRenderer>(transform_.modelId, *material_);
-
 }
 
 void Planet::Update(void)

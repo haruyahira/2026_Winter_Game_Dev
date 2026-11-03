@@ -77,6 +77,9 @@ bool GenericMagic::CanHit(void) const
 
 void GenericMagic::OnHit(void)
 {
+	// ゾルトラークは貫通・照射し続ける魔法なので、敵に当たっても爆発・消滅させない！
+	if (data_.name == "zoltraak") return;
+
 	if (isExploding_) return;
 
 	isExploding_ = true;

@@ -20,7 +20,7 @@
 GameScene::GameScene(void)
 	: player_(nullptr)
 	, destroyer_(nullptr)
-	, centaur_(nullptr)
+	, bossEnemy_(nullptr)
 	, skyDome_(nullptr)
 	, stage_(nullptr)
 	, clearTimer_(0.0f)
@@ -49,19 +49,19 @@ void GameScene::Init(void)
 	destroyer_->Init();*/
 
 	// ケンタウロス
-	centaur_ = std::make_unique<BossEnemy>();
-	centaur_->Init();
+	bossEnemy_ = std::make_unique<BossEnemy>();
+	bossEnemy_->Init();
 
 	// ステージ
-	stage_ = std::make_unique<Stage>(*player_, *destroyer_, *centaur_);
+	stage_ = std::make_unique<Stage>(*player_, *destroyer_, *bossEnemy_);
 	stage_->Init();
 
 	// ステージの初期設定
 	stage_->ChangeStage(Stage::NAME::MAIN_PLANET);
 
 	// スカイドーム
-	skyDome_ = std::make_unique<SkyDome>(player_->GetTransform());
-	skyDome_->Init();
+	/*skyDome_ = std::make_unique<SkyDome>(player_->GetTransform());
+	skyDome_->Init();*/
 
 	mainCamera.SetFollow(&player_->GetTransform());
 	mainCamera.ChangeMode(Camera::MODE::FOLLOW);
@@ -76,11 +76,10 @@ void GameScene::Update(void)
 		return;
 	}
 
-	skyDome_->Update();
+	//skyDome_->Update();
 	stage_->Update();
 	player_->Update();
-	//destroyer_->Update();
-	centaur_->Update();
+	bossEnemy_->Update();
 
 	for (auto& actor : dynamicActors_)
 	{
@@ -103,8 +102,8 @@ void GameScene::Update(void)
 		}
 	}
 
-	// ★ すべての敵（ボスと破壊者）を倒したら2秒後にクリア画面へ遷移！
-	bool bossDead = (!centaur_ || centaur_->isDestroy());
+	// すべての敵（ボスと破壊者）を倒したら2秒後にクリア画面へ遷移！
+	bool bossDead = (!bossEnemy_ || bossEnemy_->isDestroy());
 	//bool zakoDead = (!destroyer_ || destroyer_->isDestroy());
 
 	if (bossDead && /*zakoDead &&*/ !isStageCleared_)
@@ -120,7 +119,7 @@ void GameScene::Update(void)
 
 void GameScene::CheckCollision(void)
 {
-	EnemyBase* enemies[] = { centaur_.get(), destroyer_.get() };
+	EnemyBase* enemies[] = { bossEnemy_.get(), destroyer_.get() };
 
 	for (auto& actor : dynamicActors_)
 	{
@@ -154,12 +153,12 @@ void GameScene::CheckCollision(void)
 
 void GameScene::Draw(void)
 {
-	skyDome_->Draw();
+	//skyDome_->Draw();
 	stage_->Draw();
 	
 	player_->Draw();
 	//destroyer_->Draw();
-	centaur_->Draw();
+	bossEnemy_->Draw();
 
 	for (auto& actor : dynamicActors_)
 	{

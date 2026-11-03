@@ -5,7 +5,9 @@
 #include "AnimationComponent.h"
 #include "MouseLookComponent.h"
 #include "../Charactor/Player/ChantSystem.h"
+#include "../Charactor/Player/Player.h"
 #include "../Magic/GenericMagic.h"
+#include "../Magic/ZoltraakMagic.h"
 #include "../Magic/MagicData.h"
 #include "../Magic/SystemMagic.h"
 #include "../../Manager/InputManager.h"
@@ -109,9 +111,20 @@ void PlayerControlComponent::UpdateNone(void)
 void PlayerControlComponent::UpdatePlay(void)
 {
 	if (!owner_) return;
+
 	if (auto physics = owner_->GetComponent<PhysicsComponent>())
 	{
 		physics->SetGravityEnabled(true);
+
+		// =========================================================
+		// メインカメラが非アクティブ（フリーカメラ中）なら、
+		// プレイヤーの移動力を強制的にゼロにして、入力を無視する！
+		// =========================================================
+		if (!mainCamera.IsActive())
+		{
+			physics->movePow_ = AsoUtility::VECTOR_ZERO;
+			return;
+		}
 	}
 
 	Rotate();
@@ -139,24 +152,25 @@ void PlayerControlComponent::UpdateChant(void)
 		return;
 	}
 
+	// ★2回呼ばれていたバグを1回に修正
 	chantSystem_->Update();
 
-	// UpdateChant関数の中盤： if (chantSystem_->IsFinished()) の中を以下のように書き換えます
 	if (chantSystem_->IsFinished())
 	{
 		std::string spell = chantSystem_->GetNormalizedSpell();
 
-		// まずシステム魔法（retry, title, exit等）かどうかチェック
 		if (SystemMagic::Execute(spell))
 		{
 			chantSystem_->Cancel();
 			return;
 		}
 
-		// システム魔法でなければ、攻撃魔法としてデータベースをチェック
 		if (MagicDatabase::IsValidSpell(spell))
 		{
-			ProcessMagic(spell);
+			if (Player* player = dynamic_cast<Player*>(owner_))
+			{
+				player->StartCasting(spell);
+			}
 		}
 
 		chantSystem_->Cancel();
@@ -269,20 +283,32 @@ void PlayerControlComponent::ProcessAttack(void)
 void PlayerControlComponent::ProcessMagic(const std::string& spellName)
 {
 	if (!owner_) return;
-
 	if (!MagicDatabase::IsValidSpell(spellName)) return;
 
-	VECTOR forward = playerRotY_.GetForward();
+	// 魔法陣の描画位置（カメラの前方150.0f）と完全に一致させる！
+	VECTOR cPos = GetCameraPosition();
+	VECTOR cTarget = GetCameraTarget();
+	VECTOR cDir = VNorm(VSub(cTarget, cPos));
 
 	Transform spawnTrans = owner_->transform_;
-	spawnTrans.pos = VAdd(spawnTrans.pos, VGet(0.0f, 80.0f, 0.0f));
-	spawnTrans.pos = VAdd(spawnTrans.pos, VScale(forward, 30.0f));
+	spawnTrans.quaRot = playerRotY_;
+	spawnTrans.pos = VAdd(cPos, VScale(cDir, 150.0f)); // 魔法陣の中心座標
 
 	MagicData data = MagicDatabase::GetData(spellName);
-	auto magic = std::make_unique<GenericMagic>(data);
+
+	std::unique_ptr<GenericMagic> magic;
+
+	if (data.name == "zoltraak")
+	{
+		magic = std::make_unique<ZoltraakMagic>(data);
+	}
+	else
+	{
+		magic = std::make_unique<GenericMagic>(data);
+	}
 
 	magic->Init();
-	magic->Fire(spawnTrans, forward);
+	magic->Fire(spawnTrans, cDir);
 
 	if (spawnActorFunc_)
 	{

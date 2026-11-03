@@ -7,7 +7,7 @@ class BossEnemy : public EnemyBase
 public:
 
 	// モデルの基本設定（変更禁止の定数そのまま維持）
-	static constexpr VECTOR INIT_POSITION = { 150.0f, 30.0f, 200.0f };  // ボス初期座標
+	static constexpr VECTOR INIT_POSITION = { 150.0f, 100.0f, 200.0f };  // ボス初期座標
 	static constexpr VECTOR INIT_AXIS = { 0.0f, 180.0f, 0.0f };  // ボス初期軸
 	static constexpr float INIT_SCALE = 0.3f;  // ボス初期スケール
 

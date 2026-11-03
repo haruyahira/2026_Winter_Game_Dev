@@ -1,6 +1,7 @@
 // Src/Application.cpp
 #include <DxLib.h>
 #include <EffekseerForDXLib.h>
+#include "Common/FpsController.h"
 #include "Manager/InputManager.h"
 #include "Manager/ResourceManager.h"
 #include "Manager/SceneManager.h"
@@ -35,7 +36,7 @@ void Application::Init(void)
 	// アプリケーションの初期設定
 	SetWindowText("3DAction");
 
-	// ★ お使いのパソコンのモニター解像度を自動取得してフルスクリーンに設定
+	// お使いのパソコンのモニター解像度を自動取得してフルスクリーンに設定
 	int desktopW = 1920;
 	int desktopH = 1080;
 	int colorBit = 32;
@@ -67,6 +68,7 @@ void Application::Init(void)
 		return;
 	}
 
+
 	// マウスカーソルを非表示にし、画面中央に初期配置
 	SetMouseDispFlag(FALSE);
 	SetMousePoint(screenWidth_ / 2, screenHeight_ / 2);
@@ -87,16 +89,20 @@ void Application::Init(void)
 
 void Application::Run(void)
 {
+	FpsController fpsCtrl;
+
 	auto& inputManager = InputManager::GetInstance();
 	auto& sceneManager = SceneManager::GetInstance();
 
 	// ゲームループ
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
 	{
+		fpsCtrl.Update();
 		inputManager.Update();
 		sceneManager.Update();
 
 		sceneManager.Draw();
+		fpsCtrl.Draw();
 
 		ScreenFlip();
 	}

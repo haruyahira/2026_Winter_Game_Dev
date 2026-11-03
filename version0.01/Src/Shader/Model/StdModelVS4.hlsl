@@ -60,8 +60,9 @@ VS_OUTPUT main(VS_INPUT VSInput)
 	// ディフューズカラー
 	ret.diffuse = VSInput.diffuse;
 	// フォグの強さ(0.0:フォグが濃い、1.0:フォグが薄い)
-	ret.fogFactor =
-		clamp((g_fog_end - length(lWorldPosition.xyz - g_camera_pos)) / (g_fog_end - g_fog_start), 0.0, 1.0);
+	//ret.fogFactor =
+		//clamp((g_fog_end - length(lWorldPosition.xyz - g_camera_pos)) / (g_fog_end - g_fog_start), 0.0, 1.0);
+	ret.fogFactor = 1.0f;
 	// その他、ピクセルシェーダへ引継&初期化 ++++++++++++( 終了 )
 
 	// 出力パラメータを返す

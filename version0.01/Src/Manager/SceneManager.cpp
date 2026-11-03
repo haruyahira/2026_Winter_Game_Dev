@@ -8,6 +8,7 @@
 #include "Camera.h"
 #include "ResourceManager.h"
 #include "SceneManager.h"
+#include "InputManager.h"
 
 SceneManager* SceneManager::instance_ = nullptr;
 
@@ -25,18 +26,46 @@ SceneManager& SceneManager::GetInstance(void)
 	return *instance_;
 }
 
+SceneManager::SceneManager(void)
+{
+	sceneId_ = SCENE_ID::NONE;
+	waitSceneId_ = SCENE_ID::NONE;
+
+	scene_ = nullptr;
+	fader_ = nullptr;
+
+	isSceneChanging_ = false;
+
+	// デルタタイム
+	deltaTime_ = 1.0f / 60.0f;
+
+	camera_ = nullptr;
+	freeCamera_ = nullptr;     // ★追加
+	isFreeCameraMode_ = false; // ★追加
+}
+
 void SceneManager::Init(void)
 {
 
-	sceneId_ = SCENE_ID::TITLE;
+	sceneId_ = SCENE_ID::GAME;
 	waitSceneId_ = SCENE_ID::NONE;
 
+	// (中略)
 	fader_ = std::make_unique<Fader>();
 	fader_->Init();
 
-	// カメラ
+	// ★修正：プレイヤー用メインカメラの初期化
 	camera_ = std::make_unique<Camera>();
 	camera_->Init();
+	camera_->SetActive(true); // 最初はこっちをON
+
+	// ★追加：独立したフリーカメラの初期化
+	freeCamera_ = std::make_unique<Camera>();
+	freeCamera_->Init();
+	freeCamera_->ChangeMode(Camera::MODE::FREE);
+	freeCamera_->SetActive(false); // 最初はOFFにしておく
+
+	isFreeCameraMode_ = false;
 
 	isSceneChanging_ = false;
 
@@ -70,13 +99,16 @@ void SceneManager::Init3D(void)
 	SetUseLighting(true);
 	
 	// ライトの設定
-	ChangeLightTypeDir({ 0.3f, -0.7f, 0.8f });
+	//ChangeLightTypeDir({ 0.3f, -0.7f, 0.8f });
 
 
 	// フォグ設定
-	SetFogEnable(true);
+	/*SetFogEnable(true);
 	SetFogColor(5, 5, 5);
-	SetFogStartEnd(10000.0f, 20000.0f);
+	SetFogStartEnd(10000.0f, 20000.0f);*/
+	SetFogEnable(false);
+	SetFogColor(0, 0, 0); // 修正：フォグの色を 5, 5, 5 から 0, 0, 0 に
+	SetFogStartEnd(1000.0f, 5000.0f); // 暗闇を演出するため距離を少し短くする
 
 }
 
@@ -86,6 +118,28 @@ void SceneManager::Update(void)
 	if (scene_ == nullptr)
 	{
 		return;
+	}
+
+	if (InputManager::GetInstance().IsTrgDown(KEY_INPUT_3))
+	{
+		isFreeCameraMode_ = !isFreeCameraMode_;
+
+		if (isFreeCameraMode_)
+		{
+			// フリーカメラON
+			camera_->SetActive(false);
+			freeCamera_->SetActive(true);
+
+			// 切り替えた瞬間、今のプレイヤー視点の位置から幽体離脱させる
+			freeCamera_->SetPos(camera_->GetPos());
+			freeCamera_->SetAngles(camera_->GetAngles());
+		}
+		else
+		{
+			// メインカメラ(プレイヤー視点)に戻す
+			camera_->SetActive(true);
+			freeCamera_->SetActive(false);
+		}
 	}
 
 	// デルタタイム
@@ -106,12 +160,11 @@ void SceneManager::Update(void)
 
 	// カメラ更新
 	camera_->Update();
-
+	freeCamera_->Update();
 }
 
 void SceneManager::Draw(void)
 {
-	
 	// 描画先グラフィック領域の指定
 	// (３Ｄ描画で使用するカメラの設定などがリセットされる)
 	SetDrawScreen(DX_SCREEN_BACK);
@@ -120,7 +173,12 @@ void SceneManager::Draw(void)
 	ClearDrawScreen();
 
 	// カメラ設定
-	camera_->SetBeforeDraw();
+	if (isFreeCameraMode_) {
+		freeCamera_->SetBeforeDraw();
+	}
+	else {
+		camera_->SetBeforeDraw();
+	}
 
 	// Effekseerにより再生中のエフェクトを更新する。
 	UpdateEffekseer3D();
@@ -136,7 +194,6 @@ void SceneManager::Draw(void)
 	
 	// 暗転・明転
 	fader_->Draw();
-
 }
 
 void SceneManager::Destroy(void)
@@ -175,23 +232,7 @@ Camera& SceneManager::GetCamera(void)
 	return *camera_;
 }
 
-SceneManager::SceneManager(void)
-{
 
-	sceneId_ = SCENE_ID::NONE;
-	waitSceneId_ = SCENE_ID::NONE;
-
-	scene_ = nullptr;
-	fader_ = nullptr;
-
-	isSceneChanging_ = false;
-
-	// デルタタイム
-	deltaTime_ = 1.0f / 60.0f;
-
-	camera_ = nullptr;
-
-}
 
 void SceneManager::ResetDeltaTime(void)
 {
@@ -237,7 +278,6 @@ void SceneManager::DoChangeScene(SCENE_ID sceneId)
 
 void SceneManager::Fade(void)
 {
-
 	Fader::STATE fState = fader_->GetState();
 	switch (fState)
 	{
@@ -261,7 +301,6 @@ void SceneManager::Fade(void)
 		}
 		break;
 	}
-
 }
 
 

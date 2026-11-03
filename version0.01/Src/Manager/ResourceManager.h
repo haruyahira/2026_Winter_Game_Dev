@@ -35,7 +35,8 @@ public:
 		BOSS_ENEMY,
 		SKULL,
 		MUSCOMORPH,
-		FIREBALL
+		FIREBALL,
+		ZOLTRAAK,
 	};
 
 	// 明示的にインステンスを生成する

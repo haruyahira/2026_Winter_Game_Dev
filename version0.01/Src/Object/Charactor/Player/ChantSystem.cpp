@@ -60,7 +60,7 @@ void ChantSystem::Update(void)
 {
 	if (!isChanting_) return;
 
-	// ★ 左クリックでも発動！
+	// 左クリックでも発動！
 	if (InputManager::GetInstance().IsTrgMouseLeft())
 	{
 		isFinished_ = true;

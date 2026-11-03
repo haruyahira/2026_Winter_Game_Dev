@@ -66,6 +66,8 @@ private:
 
 	// カメラ
 	std::unique_ptr<Camera> camera_;
+	std::unique_ptr<Camera> freeCamera_;   // ★追加：完全に独立したデバッグ用フリーカメラ
+	bool isFreeCameraMode_;                // ★追加：現在フリーカメラに切り替わっているかのフラグ
 
 	// シーン遷移中判定
 	bool isSceneChanging_;

@@ -22,6 +22,7 @@ public:
 	void Init(void) override;
 	void Update(void) override;
 	void Draw(void) override;
+	void ProcessMagic(const std::string& spellName);
 
 	void OnLanding(void);
 
@@ -57,7 +58,7 @@ private:
 	void ProcessJump(void);
 	void ProcessDefense(void);
 	void ProcessAttack(void);
-	void ProcessMagic(const std::string& spellName);
+
 
 	void SetGoalRotate(double rotRad);
 	void Rotate(void);

@@ -692,6 +692,46 @@ void Quaternion::ToAngleAxis(float* angle, VECTOR* axis)
 
 }
 
+MATRIX Quaternion::GetMatrix(void) const
+{
+    // Quaternion‚Ì‰ñ“]‚¾‚¯‚ğs—ñ‚É•ÏŠ·‚·‚é
+    return ToMatrix();
+}
+
+MATRIX Quaternion::GetMatrix(
+    const VECTOR& position,
+    const VECTOR& scale
+) const
+{
+    return GetMatrix(
+        position,
+        Quaternion(w, x, y, z),
+        scale
+    );
+}
+
+MATRIX Quaternion::GetMatrix(
+    const VECTOR& position,
+    const Quaternion& rotation,
+    const VECTOR& scale
+)
+{
+    // Šgks—ñ
+    MATRIX scaleMatrix = MGetScale(scale);
+
+    // ‰ñ“]s—ñ
+    MATRIX rotationMatrix = rotation.ToMatrix();
+
+    // •½sˆÚ“®s—ñ
+    MATRIX translationMatrix = MGetTranslate(position);
+
+    // Šgk ¨ ‰ñ“] ¨ •½sˆÚ“®
+    MATRIX matrix = MMult(scaleMatrix, rotationMatrix);
+    matrix = MMult(matrix, translationMatrix);
+
+    return matrix;
+}
+
 Quaternion Quaternion::operator*(float& f) {
     return Quaternion(w * f, x * f, y * f, z * f);
 }

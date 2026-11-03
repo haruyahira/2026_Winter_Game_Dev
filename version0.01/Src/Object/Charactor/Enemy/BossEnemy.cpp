@@ -25,10 +25,6 @@ void BossEnemy::InitDetail(void)
 		INIT_POSITION,
 		INIT_AXIS);
 
-	// 髪と槍を非表示にする
-	HideModelFrame(3);
-	//HideModelFrame(132);
-
 	// 当たり判定(上端Y, 下端Y, 半径)とデバッグカプセル表示(青)
 	SetupCapsule(CAPSULE_TOP, CAPSULE_BOTTOM, CAPSULE_RADIUS);
 #ifdef _DEBUG
@@ -37,8 +33,6 @@ void BossEnemy::InitDetail(void)
 		capsuleComp_->SetDrawDebug(true, GetColor(0, 0, 255));
 	}
 #endif
-
-
 	// アニメーションの準備
 	InitAnimation();
 

@@ -78,6 +78,9 @@ void ResourceManager::Init(void)
 	// ファイアボール
 	res = std::make_unique<RES>(RES_T::MODEL, PATH_MGC + "Fireball/Fireball.mv1");
 	resourcesMap_.emplace(SRC::FIREBALL, std::move(res));
+	// ゾルトラーク
+	res = std::make_unique<RES>(RES_T::MODEL, PATH_MGC + "z.mv1");
+	resourcesMap_.emplace(SRC::ZOLTRAAK, std::move(res));
 }
 
 void ResourceManager::Release(void)
