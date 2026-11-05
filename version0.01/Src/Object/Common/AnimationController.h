@@ -5,8 +5,8 @@ class SceneManager;
 
 class AnimationController
 {
-	
-public :
+
+public:
 
 	// アニメーションデータ
 	struct Animation
@@ -18,6 +18,8 @@ public :
 		float totalTime = 0.0f;
 		float step = 0.0f;
 	};
+
+	static constexpr float ANIMATION_FPS = 30.0f;  // 基礎アニメーションFPS
 
 	// コンストラクタ
 	AnimationController(int modelId);
@@ -43,7 +45,7 @@ public :
 	// 再生終了
 	bool IsEnd(void) const;
 
-private :
+private:
 
 	// モデルのハンドルID
 	int modelId_;
@@ -71,5 +73,6 @@ private :
 
 	// モデルにアニメーションをアタッチする
 	int AttachAnimOrg(int animModel);
+
 };
 

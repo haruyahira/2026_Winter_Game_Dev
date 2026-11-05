@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Src\Object\Components\BeamEffectComponent.cpp" />
     <ClCompile Include="Src\Manager\LightManager.cpp" />
     <ClCompile Include="Src\Common\FpsController.cpp" />
+    <ClCompile Include="Src\Object\Components\MagicCircleComponent.cpp" />
     <ClCompile Include="Src\Object\Magic\GenericMagic.cpp" />
     <ClCompile Include="Src\Scene\ClearScene.cpp" />
     <ClCompile Include="Src\Object\Components\MouseLookComponent.cpp" />
@@ -71,9 +71,9 @@
     <ClCompile Include="Src\Object\Magic\ZoltraakMagic.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Src\Object\Components\BeamEffectComponent.h" />
     <ClInclude Include="Src\Manager\LightManager.h" />
     <ClInclude Include="Src\Common\FpsController.h" />
+    <ClInclude Include="Src\Object\Components\MagicCircleComponent.h" />
     <ClInclude Include="Src\Object\Magic\GenericMagic.h" />
     <ClInclude Include="Src\Object\Magic\MagicData.h" />
     <ClInclude Include="Src\Scene\ClearScene.h" />
@@ -330,9 +330,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -358,6 +360,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(DXLIB_DIR)</AdditionalLibraryDirectories>
     </Link>
+    <FxCompile>
+      <ShaderModel>5.0</ShaderModel>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -375,6 +380,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(DXLIB_DIR)</AdditionalLibraryDirectories>
     </Link>
+    <FxCompile>
+      <ShaderModel>5.0</ShaderModel>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

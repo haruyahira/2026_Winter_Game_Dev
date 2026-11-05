@@ -30,11 +30,14 @@ public:
 	{
 		spawnActorFunc_ = func;
 	}
+	STATE GetState() const { return state_; }
+	float GetFlyTime() const { return flyTime_; }
 
 private:
 	std::unique_ptr<ChantSystem> chantSystem_;
 
 	STATE state_;
+	STATE prevState_;
 	std::map<STATE, std::function<void(void)>> stateChanges_;
 	std::function<void(void)> stateUpdate_;
 
@@ -44,15 +47,18 @@ private:
 	Quaternion goalQuaRot_;
 	float stepRotTime_;
 	float stepJump_;
+	float flyTime_ = 0.0f;
 
 	void ChangeState(STATE state);
 	void ChangeStateNone(void);
 	void ChangeStatePlay(void);
 	void ChangeStateChant(void);
+	void ChangeStateFly(void);
 
 	void UpdateNone(void);
 	void UpdatePlay(void);
 	void UpdateChant(void);
+	void UpdateFly(void);
 
 	void ProcessMove(void);
 	void ProcessJump(void);

@@ -1,10 +1,11 @@
-// Src/Object/Charactor/Player/ChantSystem.h
 #pragma once
 #include <string>
 
 class ChantSystem
 {
+
 public:
+
 	ChantSystem(void);
 	~ChantSystem(void);
 
@@ -15,7 +16,7 @@ public:
 	// 毎フレームのタイピング判定
 	void Update(void);
 
-	// 画面下部に横幅いっぱいで打ち込んだ文字を表示する
+	// 画面下部に文字を表示する
 	void Draw(void);
 
 	// 状態の確認
@@ -32,6 +33,7 @@ public:
 	void SetHintText(const std::string& hint) { hintText_ = hint; }
 
 private:
+
 	bool isChanting_;
 	bool isFinished_;
 	std::string typedText_;
@@ -43,4 +45,5 @@ private:
 	int lastScreenHeight_;
 
 	void UpdateFonts(int screenH);
+
 };

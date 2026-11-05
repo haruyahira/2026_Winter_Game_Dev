@@ -13,8 +13,8 @@ public:
 		NONE,
 		IMG,
 		IMGS,
-		MODEL,
-		EFFEKSEER
+		MODEL,  // mv1モデル等
+		EFFEKSEER  // エフェクシア
 	};
 
 	// コンストラクタ

@@ -1,9 +1,9 @@
-// Src/Object/Charactor/Player/Player.h
 #pragma once
 #include <memory>
 #include <functional>
 #include <string>
 #include "../../../Utility/AsoUtility.h"
+#include "../../Components/MagicCircleComponent.h"
 #include "../../Magic/MagicBase.h"
 #include "../CharactorBase.h"
 
@@ -11,13 +11,15 @@ class PlayerControlComponent;
 
 class Player : public CharactorBase
 {
+
 public:
+
 	struct ShaderParam
 	{
-		float progress;     // 進行度
-		float edgeWidth;    // 境界線の幅
-		float dummy[2];     // ★超重要：メモリの隙間を埋めるためのダミー
-		float edgeColor[4]; // 境界線の色
+		float progress;  // 進行度
+		float edgeWidth;  // 境界線の幅
+		float dummy[2];  // メモリの隙間を埋めるためのダミー
+		float edgeColor[4];  // 境界線の色
 	};
 
 	// 頂点シェーダーへ送る行列データ
@@ -28,16 +30,17 @@ public:
 	};
 
 	// スピード
-	static constexpr float SPEED_MOVE = 5.0f;
-	static constexpr float SPEED_RUN = 50.0f;
+	static constexpr float SPEED_WALK = 5.0f;  // 歩きスピード
+	static constexpr float SPEED_RUN = 50.0f;  // 走りスピード
 	static constexpr float TIME_ROT = 1.0f;
-	static constexpr float POW_JUMP = 35.0f;
-	static constexpr float TIME_JUMP_IN = 0.5f;
+
+	static constexpr float POW_JUMP = 35.0f;  // ジャンプ力
+	static constexpr float TIME_JUMP_IN =0.5f;
 
 	// モデルの基本設定
-	static constexpr VECTOR INIT_POSITION = { 0.0f, 100.0f, 0.0f };
-	static constexpr VECTOR INIT_AXIS = { 0.0f, 180.0f, 0.0f };
-	static constexpr float INIT_SCALE = 1.5f;
+	static constexpr VECTOR INIT_POSITION = { 0.0f, 100.0f, 0.0f };  //	初期座標
+	static constexpr VECTOR INIT_AXIS = { 0.0f, 180.0f, 0.0f };  // 初期軸
+	static constexpr float INIT_SCALE = 1.5f;  // 初期スケール
 
 	// 当たり判定
 	static constexpr VECTOR CAPSULE_TOP = { 0.0f, 110.0f, 0.0f };
@@ -54,12 +57,27 @@ public:
 
 	enum class STATE
 	{
-		NONE, PLAY, CHANT, WARP_RESERVE, WARP_MOVE, DEAD, VICTORY, END
+		NONE,
+		PLAY,
+		CHANT,
+		FLY,
+		WARP_RESERVE,
+		WARP_MOVE,
+		DEAD,
+		VICTORY,
+		END
 	};
 
 	enum class ANIM_TYPE
 	{
-		IDLE, RUN, FAST_RUN, JUMP, WARP_PAUSE, FLY, FALLING, VICTORY
+		IDLE,
+		RUN,
+		FAST_RUN,
+		JUMP,
+		WARP_PAUSE,
+		FLY,
+		FALLING,
+		VICTORY
 	};
 
 	Player(void);
@@ -71,26 +89,22 @@ public:
 	void SetSpawnFunc(std::function<void(std::unique_ptr<ActorBase>)> func);
 
 protected:
+
 	void InitDetail(void) override;
 	void OnLanding(void) override;
 
 private:
-	std::shared_ptr<PlayerControlComponent> controlComp_;
-	std::function<void(std::unique_ptr<ActorBase>)> spawnActorFunc_;
 
 	void InitAnimation(void);
 
-	// 魔法陣用のリソース
-	int magicBaseImg_;
-	int magicMaskImg_;
+	std::shared_ptr<PlayerControlComponent> controlComp_;
+	std::shared_ptr<MagicCircleComponent> magicCircleComp_;
 
-	int vertexShader_;     // ★頂点シェーダー
-	int vsConstBuffer_;    // ★頂点シェーダー用バッファ
-	int pixelShader_;
-	int constBuffer_;
+	std::function<void(std::unique_ptr<ActorBase>)> spawnActorFunc_;
 
 	// 詠唱管理用
 	bool isCasting_;
 	float currentCastTime_;
 	std::string castingSpell_;
+
 };

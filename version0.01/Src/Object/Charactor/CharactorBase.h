@@ -17,7 +17,9 @@ class AnimationComponent;
 
 class CharactorBase : public ActorBase
 {
+
 public:
+
 	CharactorBase(void);
 	virtual ~CharactorBase(void);
 
@@ -55,4 +57,5 @@ protected:
 
 	// 着地時に呼ばれるフック関数
 	virtual void OnLanding(void) {}
+
 };

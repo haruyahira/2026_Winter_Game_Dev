@@ -1,9 +1,9 @@
-// BossEnemy.h
 #pragma once
 #include "EnemyBase.h"
 
 class BossEnemy : public EnemyBase
 {
+
 public:
 
 	// モデルの基本設定（変更禁止の定数そのまま維持）
@@ -47,4 +47,5 @@ protected:
 private:
 
 	void InitAnimation(void);
+
 };

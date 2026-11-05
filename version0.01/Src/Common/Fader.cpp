@@ -86,7 +86,7 @@ void Fader::Draw(void)
 	case STATE::FADE_OUT:
 	case STATE::FADE_IN:
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)alpha_);
-		// ★ フルスクリーンの実解像度に合わせて画面全体を暗転させる
+		// フルスクリーンの実解像度に合わせて画面全体が暗転
 		DrawBox(
 			0, 0,
 			Application::GetScreenWidth(),

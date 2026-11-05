@@ -12,8 +12,8 @@ public:
 	enum class STATE
 	{
 		NONE, 
-		FADE_OUT,	// 徐々に暗転
-		FADE_IN		// 徐々に明転
+		FADE_OUT,  // 徐々に暗転
+		FADE_IN  // 徐々に明転
 	};
 
 	// 状態の取得
@@ -38,7 +38,6 @@ private:
 	float alpha_;
 
 	// 状態(STATE)を保ったまま終了判定を行うため、
-	// Update->Draw->Updateの1フレーム判定用
 	bool isPreEnd_;
 
 	// フェード処理の終了判定

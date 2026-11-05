@@ -201,10 +201,10 @@
     <ClCompile Include="Src\Manager\LightManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Object\Components\BeamEffectComponent.cpp">
+    <ClCompile Include="Src\Object\Magic\ZoltraakMagic.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Object\Magic\ZoltraakMagic.cpp">
+    <ClCompile Include="Src\Object\Components\MagicCircleComponent.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -362,10 +362,10 @@
     <ClInclude Include="Src\Manager\LightManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Object\Components\BeamEffectComponent.h">
+    <ClInclude Include="Src\Object\Magic\ZoltraakMagic.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Object\Magic\ZoltraakMagic.h">
+    <ClInclude Include="Src\Object\Components\MagicCircleComponent.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,3 @@
-// EnemyBase.h
 #pragma once
 #include <memory>
 #include "../CharactorBase.h"
@@ -39,4 +38,5 @@ protected:
 
 	virtual void ProcessAI(void);
 	virtual void OnLanding(void) override;
+
 };

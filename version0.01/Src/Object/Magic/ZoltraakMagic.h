@@ -24,7 +24,7 @@ public:
 
 private:
 
-    const float SPAWN_DISTANCE = 420.0f;
+    const float SPAWN_DISTANCE = 620.0f;
     const float END_DISTANCE = 50000.0f;
     void DrawBeamLayer(VECTOR pos, VECTOR scale, FLOAT4 color, int blendMode, int blendParam);
 

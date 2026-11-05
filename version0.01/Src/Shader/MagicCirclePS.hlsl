@@ -22,7 +22,7 @@ SamplerState sampMask : register(s1);
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    float4 color = texBase.Sample(sampBase, input.uv);
+    float4 color = texBase.Sample(sampBase, input.uv) * input.dif;
 
     if (color.a <= 0.01f && dot(color.rgb, float3(1.0f, 1.0f, 1.0f)) <= 0.01f)
     {

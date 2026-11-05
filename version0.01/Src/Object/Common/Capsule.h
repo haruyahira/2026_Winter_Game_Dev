@@ -5,7 +5,7 @@ class Transform;
 class Capsule
 {
 
-public :
+public:
 
 	// デバッグ時の簡易カプセル表示の色
 	static constexpr int COLOR = 0xffffff;
@@ -46,7 +46,7 @@ public :
 	// カプセルの中心座標
 	VECTOR GetCenter(void) const;
 
-private :
+private:
 
 	// カプセルをくっつける相手
 	const Transform& transformParent_;

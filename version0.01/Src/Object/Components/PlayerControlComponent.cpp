@@ -22,10 +22,12 @@ PlayerControlComponent::PlayerControlComponent(void)
 	, goalQuaRot_(Quaternion())
 	, stepRotTime_(0.0f)
 	, stepJump_(0.0f)
+	, prevState_(STATE::NONE)
 {
 	stateChanges_.emplace(STATE::NONE, std::bind(&PlayerControlComponent::ChangeStateNone, this));
 	stateChanges_.emplace(STATE::PLAY, std::bind(&PlayerControlComponent::ChangeStatePlay, this));
 	stateChanges_.emplace(STATE::CHANT, std::bind(&PlayerControlComponent::ChangeStateChant, this));
+	stateChanges_.emplace(STATE::FLY, std::bind(&PlayerControlComponent::ChangeStateFly, this));
 }
 
 PlayerControlComponent::~PlayerControlComponent(void)
@@ -55,6 +57,7 @@ void PlayerControlComponent::Draw(void)
 
 void PlayerControlComponent::ChangeState(STATE state)
 {
+	prevState_ = state_;
 	state_ = state;
 	stateChanges_[state_]();
 }
@@ -104,6 +107,27 @@ void PlayerControlComponent::ChangeStateChant(void)
 	chantSystem_->Start();
 }
 
+void PlayerControlComponent::ChangeStateFly(void)
+{
+	stateUpdate_ = std::bind(&PlayerControlComponent::UpdateFly, this);
+	if (owner_)
+	{
+		if (auto physics = owner_->GetComponent<PhysicsComponent>())
+		{
+			physics->movePow_ = AsoUtility::VECTOR_ZERO;
+			physics->jumpPow_ = AsoUtility::VECTOR_ZERO;
+			physics->SetGravityEnabled(false);
+		}
+
+		// ★ 修正：詠唱からの復帰時は上にワープさせない（無限に上昇してしまうのを防ぐ）
+		if (prevState_ != STATE::CHANT)
+		{
+			owner_->transform_.pos.y += 5.0f;
+		}
+	}
+	flyTime_ = 0.0f;
+}
+
 void PlayerControlComponent::UpdateNone(void)
 {
 }
@@ -112,14 +136,17 @@ void PlayerControlComponent::UpdatePlay(void)
 {
 	if (!owner_) return;
 
+	if (InputManager::GetInstance().IsTrgDown(KEY_INPUT_Z))
+	{
+		ChangeState(STATE::FLY);
+		return;
+	}
+
 	if (auto physics = owner_->GetComponent<PhysicsComponent>())
 	{
 		physics->SetGravityEnabled(true);
 
-		// =========================================================
-		// メインカメラが非アクティブ（フリーカメラ中）なら、
-		// プレイヤーの移動力を強制的にゼロにして、入力を無視する！
-		// =========================================================
+		// フリーカメラ時入力を無視
 		if (!mainCamera.IsActive())
 		{
 			physics->movePow_ = AsoUtility::VECTOR_ZERO;
@@ -145,14 +172,16 @@ void PlayerControlComponent::UpdateChant(void)
 
 	auto& ins = InputManager::GetInstance();
 
+	// ★ これを追加：戻るべき状態をチェック
+	STATE returnState = (prevState_ == STATE::FLY) ? STATE::FLY : STATE::PLAY;
+
 	if (ins.IsTrgDown(KEY_INPUT_TAB))
 	{
 		chantSystem_->Cancel();
-		ChangeState(STATE::PLAY);
+		ChangeState(returnState);
 		return;
 	}
 
-	// ★2回呼ばれていたバグを1回に修正
 	chantSystem_->Update();
 
 	if (chantSystem_->IsFinished())
@@ -174,8 +203,69 @@ void PlayerControlComponent::UpdateChant(void)
 		}
 
 		chantSystem_->Cancel();
-		ChangeState(STATE::PLAY);
+		ChangeState(returnState);
 	}
+}
+
+void PlayerControlComponent::UpdateFly(void)
+{
+	if (!owner_) return;
+
+	auto& ins = InputManager::GetInstance();
+
+	if (ins.IsTrgDown(KEY_INPUT_Z))
+	{
+		ChangeState(STATE::PLAY);
+		return;
+	}
+
+	if (!mainCamera.IsActive())
+	{
+		if (auto physics = owner_->GetComponent<PhysicsComponent>())
+		{
+			physics->movePow_ = AsoUtility::VECTOR_ZERO;
+		}
+		return; // ここで処理を終わらせるため、下の移動処理が呼ばれない
+	}
+
+	// 飛行中もTABキーで詠唱開始！
+	if (ins.IsTrgDown(KEY_INPUT_TAB))
+	{
+		ChangeState(STATE::CHANT);
+		return;
+	}
+
+	VECTOR dir = AsoUtility::VECTOR_ZERO;
+	Quaternion cameraRot = mainCamera.GetQuaRot();
+
+	if (ins.IsNew(KEY_INPUT_W)) { dir = VAdd(dir, cameraRot.GetForward()); }
+	if (ins.IsNew(KEY_INPUT_S)) { dir = VAdd(dir, cameraRot.GetBack()); }
+	if (ins.IsNew(KEY_INPUT_D)) { dir = VAdd(dir, cameraRot.GetRight()); }
+	if (ins.IsNew(KEY_INPUT_A)) { dir = VAdd(dir, cameraRot.GetLeft()); }
+
+	if (ins.IsNew(KEY_INPUT_SPACE)) { dir = VAdd(dir, AsoUtility::DIR_U); }
+	if (ins.IsNew(KEY_INPUT_LCONTROL)) { dir = VAdd(dir, AsoUtility::DIR_D); }
+
+	if (auto physics = owner_->GetComponent<PhysicsComponent>())
+	{
+		physics->jumpPow_ = AsoUtility::VECTOR_ZERO;
+		physics->movePow_ = AsoUtility::VECTOR_ZERO;
+
+		if (!AsoUtility::EqualsVZero(dir))
+		{
+			dir = AsoUtility::VNormalize(dir);
+			float dtScale = SceneManager::GetInstance().GetDeltaTime() * 60.0f;
+
+			// ★直接ワープするのではなく、物理エンジンに移動量(3D方向)を渡す
+			physics->speed_ = Player::SPEED_RUN;
+			physics->movePow_ = VScale(dir, physics->speed_ * dtScale);
+		}
+	}
+
+	// プレイヤーの体の向き（とカプセル当たり判定）を進行方向に傾ける
+	owner_->transform_.quaRot = cameraRot;
+
+	flyTime_ += SceneManager::GetInstance().GetDeltaTime();
 }
 
 void PlayerControlComponent::ProcessMove(void)
@@ -203,7 +293,7 @@ void PlayerControlComponent::ProcessMove(void)
 		float dtScale = SceneManager::GetInstance().GetDeltaTime() * 60.0f;
 		bool isRun = ins.IsNew(KEY_INPUT_RSHIFT) || ins.IsNew(KEY_INPUT_LSHIFT);
 
-		physics->speed_ = isRun ? Player::SPEED_RUN : Player::SPEED_MOVE;
+		physics->speed_ = isRun ? Player::SPEED_RUN : Player::SPEED_WALK;
 		physics->moveDir_ = dir;
 		physics->movePow_ = VScale(dir, physics->speed_ * dtScale);
 
@@ -266,14 +356,6 @@ void PlayerControlComponent::ProcessAttack(void)
 		stepRotTime_ -= deltaTime;
 	}
 
-	//// ★修正：コメントアウトを外しました！ 左クリックまたはEnterで速射します
-	//if ((ins.IsTrgMouseLeft() || CheckHitKey(KEY_INPUT_RETURN)) && stepRotTime_ <= 0.0f)
-	//{
-	//	// 左クリック時は検索キー（スペースなし小文字）を渡す
-	//	ProcessMagic("fireball");
-	//	stepRotTime_ = 0.3f;
-	//}
-
 	if (ins.IsTrgDown(KEY_INPUT_TAB))
 	{
 		ChangeState(STATE::CHANT);
@@ -285,16 +367,19 @@ void PlayerControlComponent::ProcessMagic(const std::string& spellName)
 	if (!owner_) return;
 	if (!MagicDatabase::IsValidSpell(spellName)) return;
 
-	// 魔法陣の描画位置（カメラの前方150.0f）と完全に一致させる！
-	VECTOR cPos = GetCameraPosition();
-	VECTOR cTarget = GetCameraTarget();
+	// 先に魔法データを取得する
+	MagicData data = MagicDatabase::GetData(spellName);
+
+	// MagicCircleComponent(魔法陣)と全く同じ計算式にしてズレを無くす！
+	VECTOR cPos = mainCamera.GetPos();
+	VECTOR cTarget = mainCamera.GetTargetPos();
 	VECTOR cDir = VNorm(VSub(cTarget, cPos));
 
 	Transform spawnTrans = owner_->transform_;
 	spawnTrans.quaRot = playerRotY_;
-	spawnTrans.pos = VAdd(cPos, VScale(cDir, 150.0f)); // 魔法陣の中心座標
 
-	MagicData data = MagicDatabase::GetData(spellName);
+	spawnTrans.pos = VAdd(cPos, VScale(cDir, data.spawnDistance));
+	spawnTrans.pos.y -= 50.0f;
 
 	std::unique_ptr<GenericMagic> magic;
 

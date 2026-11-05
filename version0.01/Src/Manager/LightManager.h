@@ -2,7 +2,7 @@
 #include <DxLib.h>
 #include <vector>
 
-// 最大ライト数（必要に応じて変更可能）
+// 最大ライト数
 #define MAX_POINT_LIGHT 32
 #define MAX_SPOT_LIGHT  8
 
@@ -40,7 +40,9 @@ struct LightEnvironmentBuffer
 
 class LightManager
 {
+
 public:
+
 	LightManager();
 	~LightManager();
 
@@ -60,6 +62,8 @@ public:
 	void SetReservePS(int slotIndex);
 
 private:
+
 	int constBufHandle_;
 	LightEnvironmentBuffer bufferData_;
+
 };

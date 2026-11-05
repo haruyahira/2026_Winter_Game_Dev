@@ -40,26 +40,24 @@ SceneManager::SceneManager(void)
 	deltaTime_ = 1.0f / 60.0f;
 
 	camera_ = nullptr;
-	freeCamera_ = nullptr;     // ★追加
-	isFreeCameraMode_ = false; // ★追加
+	freeCamera_ = nullptr;
+	isFreeCameraMode_ = false;
 }
 
 void SceneManager::Init(void)
 {
-
 	sceneId_ = SCENE_ID::GAME;
 	waitSceneId_ = SCENE_ID::NONE;
 
-	// (中略)
 	fader_ = std::make_unique<Fader>();
 	fader_->Init();
 
-	// ★修正：プレイヤー用メインカメラの初期化
+	// プレイヤー用メインカメラの初期化
 	camera_ = std::make_unique<Camera>();
 	camera_->Init();
 	camera_->SetActive(true); // 最初はこっちをON
 
-	// ★追加：独立したフリーカメラの初期化
+	// 独立したフリーカメラの初期化
 	freeCamera_ = std::make_unique<Camera>();
 	freeCamera_->Init();
 	freeCamera_->ChangeMode(Camera::MODE::FREE);
@@ -76,13 +74,11 @@ void SceneManager::Init(void)
 	Init3D();
 
 	// 初期シーンの設定
-	DoChangeScene(SCENE_ID::TITLE);
-
+	DoChangeScene(SCENE_ID::GAME);
 }
 
 void SceneManager::Init3D(void)
 {
-
 	// 背景色設定
 	SetBackgroundColor(0, 139, 139);
 
@@ -97,24 +93,14 @@ void SceneManager::Init3D(void)
 
 	// ライトの設定
 	SetUseLighting(true);
-	
-	// ライトの設定
-	//ChangeLightTypeDir({ 0.3f, -0.7f, 0.8f });
 
-
-	// フォグ設定
-	/*SetFogEnable(true);
-	SetFogColor(5, 5, 5);
-	SetFogStartEnd(10000.0f, 20000.0f);*/
 	SetFogEnable(false);
 	SetFogColor(0, 0, 0); // 修正：フォグの色を 5, 5, 5 から 0, 0, 0 に
 	SetFogStartEnd(1000.0f, 5000.0f); // 暗闇を演出するため距離を少し短くする
-
 }
 
 void SceneManager::Update(void)
 {
-
 	if (scene_ == nullptr)
 	{
 		return;
@@ -198,14 +184,11 @@ void SceneManager::Draw(void)
 
 void SceneManager::Destroy(void)
 {
-
 	delete instance_;
-
 }
 
 void SceneManager::ChangeScene(SCENE_ID nextId)
 {
-
 	// フェード処理が終わってからシーンを変える場合もあるため、
 	// 遷移先シーンをメンバ変数に保持
 	waitSceneId_ = nextId;
@@ -213,7 +196,6 @@ void SceneManager::ChangeScene(SCENE_ID nextId)
 	// フェードアウト(暗転)を開始する
 	fader_->SetFade(Fader::STATE::FADE_OUT);
 	isSceneChanging_ = true;
-
 }
 
 SceneManager::SCENE_ID SceneManager::GetSceneID(void)
@@ -232,8 +214,6 @@ Camera& SceneManager::GetCamera(void)
 	return *camera_;
 }
 
-
-
 void SceneManager::ResetDeltaTime(void)
 {
 	deltaTime_ = 0.016f;
@@ -242,7 +222,6 @@ void SceneManager::ResetDeltaTime(void)
 
 void SceneManager::DoChangeScene(SCENE_ID sceneId)
 {
-
 	// リソースの解放
 	ResourceManager::GetInstance().Release();
 
@@ -273,7 +252,6 @@ void SceneManager::DoChangeScene(SCENE_ID sceneId)
 	ResetDeltaTime();
 
 	waitSceneId_ = SCENE_ID::NONE;
-
 }
 
 void SceneManager::Fade(void)

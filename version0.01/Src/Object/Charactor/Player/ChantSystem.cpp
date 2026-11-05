@@ -60,7 +60,7 @@ void ChantSystem::Update(void)
 {
 	if (!isChanting_) return;
 
-	// 左クリックでも発動！
+	// 左クリックで発動
 	if (InputManager::GetInstance().IsTrgMouseLeft())
 	{
 		isFinished_ = true;
@@ -85,7 +85,7 @@ void ChantSystem::Update(void)
 	}
 }
 
-// ★ 追加：スペースを消して小文字にした「判定用文字列」を返す
+// スペースを消して小文字にした判定用文字列を返す
 std::string ChantSystem::GetNormalizedSpell(void) const
 {
 	std::string normalized = "";
@@ -145,7 +145,7 @@ void ChantSystem::Draw(void)
 
 	DrawStringToHandle(drawX1, drawY1, text1.c_str(), GetColor(0, 255, 255), fontMain_, GetColor(0, 40, 60));
 
-	// ★ 改行対応のヒントテキストを中央下に描画
+	// 改行対応のヒントテキストを中央下に描画
 	std::string hintStr = hintText_;
 	std::vector<std::string> hintLines = AsoUtility::Split(hintStr, '\n');
 

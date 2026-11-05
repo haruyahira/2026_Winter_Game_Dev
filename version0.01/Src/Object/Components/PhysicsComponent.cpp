@@ -28,9 +28,10 @@ void PhysicsComponent::Update(void)
 
 	if (isGravityEnabled_)
 	{
-		CalcGravityPow();
-		Collision();
+		CalcGravityPow(); // 重力計算はオンの時だけ
 	}
+
+	Collision();
 
 	owner_->transform_.Update();
 }
@@ -151,48 +152,6 @@ void PhysicsComponent::CollisionCapsule(void)
 	// 最終的に計算された安全な位置を movedPos_ にセット
 	movedPos_ = currentPos;
 }
-
-
-
-//void PhysicsComponent::CollisionGravity(void)
-//{
-//	if (!owner_) return;
-//	auto colliderComp = owner_->GetComponent<CapsuleColliderComponent>();
-//	if (!colliderComp) return;
-//
-//	// ★ 修正：ここでも同じように上限を設ける
-//	float deltaTime = SceneManager::GetInstance().GetDeltaTime();
-//	if (deltaTime > 0.025f) {
-//		deltaTime = 0.025f;
-//	}
-//	float dtScale = deltaTime * 60.0f;
-//	movedPos_ = VAdd(movedPos_, VScale(jumpPow_, dtScale));
-//
-//	VECTOR dirGravity = AsoUtility::DIR_D;
-//	VECTOR dirUpGravity = AsoUtility::DIR_U;
-//	float gravityPow = Planet::DEFAULT_GRAVITY_POW;
-//	float checkPow = 10.0f;
-//
-//	gravHitPosUp_ = VAdd(movedPos_, VScale(dirUpGravity, gravityPow));
-//	gravHitPosUp_ = VAdd(gravHitPosUp_, VScale(dirUpGravity, checkPow * 2.0f));
-//	gravHitPosDown_ = VAdd(movedPos_, VScale(dirGravity, checkPow));
-//
-//	for (const auto& c : colliderComp->GetColliders())
-//	{
-//		if (c.expired()) continue;
-//		auto hit = MV1CollCheck_Line(c.lock()->modelId_, -1, gravHitPosUp_, gravHitPosDown_);
-//		if (hit.HitFlag > 0 && VDot(dirGravity, jumpPow_) > 0.0f)
-//		{
-//			movedPos_ = VAdd(hit.HitPosition, VScale(dirUpGravity, 2.0f));
-//			jumpPow_ = AsoUtility::VECTOR_ZERO;
-//
-//			if (onLanding_)
-//			{
-//				onLanding_();
-//			}
-//		}
-//	}
-//}
 
 void PhysicsComponent::CollisionGravity(void)
 {

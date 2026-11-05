@@ -1,4 +1,3 @@
-// BossEnemy.cpp
 #include "BossEnemy.h"
 #include "../../../Manager/ResourceManager.h"
 #include "../../Components/AnimationComponent.h"
@@ -46,7 +45,7 @@ void BossEnemy::InitDetail(void)
 void BossEnemy::InitAnimation(void)
 {
 	if (!animComp_) return;
-	animComp_->AddInFBX((int)ANIM_TYPE::IDLE, 30.0f);
-	animComp_->AddInFBX((int)ANIM_TYPE::WALK, 30.0f);
+	animComp_->AddInFBX((int)ANIM_TYPE::IDLE, AnimationController::ANIMATION_FPS);
+	animComp_->AddInFBX((int)ANIM_TYPE::WALK, AnimationController::ANIMATION_FPS);
 	animComp_->Play((int)ANIM_TYPE::IDLE);
 }

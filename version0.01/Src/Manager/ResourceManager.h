@@ -6,12 +6,13 @@
 
 class ResourceManager
 {
+
 public:
 
 	// リソース名
 	enum class SRC
 	{
-		TITLE,
+		TITLE,  // タイトル
 		PUSH_SPACE,
 		SPEECH_BALLOON,
 		PLAYER,
@@ -35,8 +36,8 @@ public:
 		BOSS_ENEMY,
 		SKULL,
 		MUSCOMORPH,
-		FIREBALL,
-		ZOLTRAAK,
+		FIREBALL,  // ファイアボール（魔法）モデル
+		ZOLTRAAK,  // ゾルトラーク（魔法）モデル
 	};
 
 	// 明示的にインステンスを生成する
@@ -81,4 +82,5 @@ private:
 
 	// 内部ロード
 	Resource& _Load(SRC src);
+
 };

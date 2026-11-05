@@ -26,7 +26,7 @@ ZoltraakMagic::~ZoltraakMagic()
 void ZoltraakMagic::Init()
 {
     GenericMagic::Init();
-    collisionRadius_ = 80.0f;
+    collisionRadius_ = 150.0f;
 
     pixelShaderHandle_ = LoadPixelShader("Data/Shader/ZoltraakBeamPS.cso");
     noiseTextureHandle_ = LoadGraph("Data/Image/Noise.png");
@@ -54,7 +54,7 @@ void ZoltraakMagic::Update()
         VECTOR cDir = VNorm(VSub(cTarget, cPos));
 
         // 当たり判定の球を、根本から先端まで超高速で往復（スキャン）させる
-        float scanDist = SPAWN_DISTANCE + std::fmod(currentTime_ * END_DISTANCE * 2, END_DISTANCE);
+        float scanDist = SPAWN_DISTANCE + std::fmod(currentTime_ * END_DISTANCE * 4, END_DISTANCE);
 
         transform_.pos = VAdd(cPos, VScale(cDir, scanDist));
         fireDir_ = cDir;
@@ -149,7 +149,7 @@ void ZoltraakMagic::Draw()
     // 第1層：周囲を囲うαオーラ
     DrawBeamLayer(
         beamCenterPos,
-        VGet(13.0f, 13.0f, 100.0f),
+        VGet(11.5f, 11.5f, 100.0f),
         { 2.0f, 2.0f, 2.0f, 0.3f },
         DX_BLENDMODE_ALPHA, 140
     );
@@ -157,7 +157,7 @@ void ZoltraakMagic::Draw()
     // 第2層：中間の発光オーラ
     DrawBeamLayer(
         beamCenterPos,
-        VGet(10.0f, 10.0f, 100.0f),
+        VGet(8.5f, 8.5f, 100.0f),
         { 1.0f, 1.0f, 1.0f, 0.7f },
         DX_BLENDMODE_ADD, 200
     );
@@ -165,7 +165,7 @@ void ZoltraakMagic::Draw()
     // 第2層：中間の発光オーラ
     DrawBeamLayer(
         beamCenterPos,
-        VGet(8.0f, 8.0f, 100.0f),
+        VGet(6.5f, 6.5f, 100.0f),
         { 2.0f, 2.0f, 2.0f, 0.85f },
         DX_BLENDMODE_ADD, 200
     );
@@ -173,7 +173,7 @@ void ZoltraakMagic::Draw()
     // 一番内側
     DrawBeamLayer(
         beamCenterPos,
-        VGet(6.0f, 6.0f, 100.0f),
+        VGet(4.5f, 4.5f, 100.0f),
         { 3.0f, 3.0f, 3.0f, 1.0f },
         DX_BLENDMODE_ADD, 255
     );
@@ -188,6 +188,8 @@ void ZoltraakMagic::Draw()
     SetUsePixelShader(-1);
     SetUseVertexShader(-1);
 
+
+    // 当たり判定可視化
     SetUseZBuffer3D(FALSE);
     SetWriteZBuffer3D(FALSE);
 
